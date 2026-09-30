@@ -6,7 +6,7 @@ The top half is a plain text box that's always there — write something down wi
 
 ### Install
 
-Debug builds are attached to [GitHub Releases](https://github.com/mstcgalis/scratchpad-launcher/releases). F-Droid submission is pending — see [Status](#status) below.
+Available on [F-Droid](https://f-droid.org/packages/app.scratchpad.launcher/). Signed release APKs are also attached to [GitHub Releases](https://github.com/mstcgalis/scratchpad-launcher/releases).
 
 ### Why
 
@@ -28,7 +28,7 @@ Single Gradle module, built with `just` (see `justfile`):
 
 ### Status
 
-This is a personal fork, freshly rebranded from Olauncher (new `applicationId`, own icon). F-Droid metadata is prepared; not yet submitted to `fdroiddata`.
+This is a personal fork of Olauncher with its own `applicationId` and icon. Published on F-Droid (merged into `fdroiddata` 2026-09-22; current version 1.1.9).
 
 ### License
 
