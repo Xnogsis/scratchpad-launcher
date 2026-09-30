@@ -20,3 +20,4 @@ google-services.json
 .superpowers/
 .claude/*
 !.claude/settings.json
+release-artifacts/
