@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/primaryShadeDarkColor"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp">
+
+        <Button
+            android:id="@+id/back"
+            style="@style/ScratchpadTool"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:gravity="start|center_vertical"
+            android:text="@string/done" />
+
+        <Button
+            android:id="@+id/reset"
+            style="@style/ScratchpadTool"
+            android:layout_width="wrap_content"
+            android:text="@string/reset" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="190dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp">
+
+        <app.olauncher.ui.FittingTextClock
+            android:id="@+id/previewClock"
+            style="@style/TextDefault"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format12Hour="h:mm"
+            android:format24Hour="HH:mm" />
+
+        <TextView
+            android:id="@+id/previewDate"
+            style="@style/TextDefault"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="24dp"
+        android:background="?attr/primaryColorTrans50" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="48dp">
+
+            <TextView style="@style/TextSmallBold" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/style_preset" android:labelFor="@id/preset" />
+            <Spinner android:id="@+id/preset" android:layout_width="match_parent" android:layout_height="48dp" android:spinnerMode="dialog" />
+
+            <TextView style="@style/ClockAppearanceSection" android:text="@string/clock" />
+            <TextView style="@style/ClockAppearanceValue" android:text="@string/font" android:labelFor="@id/clockFont" />
+            <Spinner android:id="@+id/clockFont" style="@style/ClockAppearanceSpinner" />
+            <TextView style="@style/ClockAppearanceValue" android:text="@string/weight" android:labelFor="@id/clockWeight" />
+            <Spinner android:id="@+id/clockWeight" style="@style/ClockAppearanceSpinner" />
+            <TextView android:id="@+id/clockSizeValue" style="@style/ClockAppearanceValue" android:text="@string/clock_size_label" android:labelFor="@id/clockSize" />
+            <SeekBar android:id="@+id/clockSize" style="@style/ClockAppearanceSeek" android:max="56" />
+            <TextView android:id="@+id/clockSpacingValue" style="@style/ClockAppearanceValue" android:text="@string/letter_spacing_label" android:labelFor="@id/clockSpacing" />
+            <SeekBar android:id="@+id/clockSpacing" style="@style/ClockAppearanceSeek" android:max="25" />
+
+            <TextView style="@style/ClockAppearanceSection" android:text="@string/date" />
+            <TextView style="@style/ClockAppearanceValue" android:text="@string/font" android:labelFor="@id/dateFont" />
+            <Spinner android:id="@+id/dateFont" style="@style/ClockAppearanceSpinner" />
+            <TextView style="@style/ClockAppearanceValue" android:text="@string/weight" android:labelFor="@id/dateWeight" />
+            <Spinner android:id="@+id/dateWeight" style="@style/ClockAppearanceSpinner" />
+            <TextView style="@style/ClockAppearanceValue" android:text="@string/date_format" android:labelFor="@id/dateFormat" />
+            <Spinner android:id="@+id/dateFormat" style="@style/ClockAppearanceSpinner" />
+            <TextView android:id="@+id/dateSizeValue" style="@style/ClockAppearanceValue" android:text="@string/clock_size_label" android:labelFor="@id/dateSize" />
+            <SeekBar android:id="@+id/dateSize" style="@style/ClockAppearanceSeek" android:max="18" />
+            <TextView android:id="@+id/dateSpacingValue" style="@style/ClockAppearanceValue" android:text="@string/letter_spacing_label" android:labelFor="@id/dateSpacing" />
+            <SeekBar android:id="@+id/dateSpacing" style="@style/ClockAppearanceSeek" android:max="25" />
+            <TextView android:id="@+id/lineSpacingValue" style="@style/ClockAppearanceValue" android:text="@string/clock_date_gap_label" android:labelFor="@id/lineSpacing" />
+            <SeekBar android:id="@+id/lineSpacing" style="@style/ClockAppearanceSeek" android:max="24" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

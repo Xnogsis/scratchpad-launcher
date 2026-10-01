@@ -29,6 +29,16 @@ class Prefs(context: Context) {
     private val APP_LABEL_ALIGNMENT = "APP_LABEL_ALIGNMENT"
     private val STATUS_BAR = "STATUS_BAR"
     private val DATE_TIME_VISIBILITY = "DATE_TIME_VISIBILITY"
+    private val CLOCK_FONT = "CLOCK_FONT"
+    private val DATE_FONT = "DATE_FONT"
+    private val CLOCK_TEXT_SIZE = "CLOCK_TEXT_SIZE"
+    private val DATE_TEXT_SIZE = "DATE_TEXT_SIZE"
+    private val CLOCK_FONT_WEIGHT = "CLOCK_FONT_WEIGHT"
+    private val DATE_FONT_WEIGHT = "DATE_FONT_WEIGHT"
+    private val CLOCK_LETTER_SPACING = "CLOCK_LETTER_SPACING"
+    private val DATE_LETTER_SPACING = "DATE_LETTER_SPACING"
+    private val CLOCK_DATE_SPACING = "CLOCK_DATE_SPACING"
+    private val DATE_FORMAT = "DATE_FORMAT"
     private val SWIPE_LEFT_ENABLED = "SWIPE_LEFT_ENABLED"
     private val SWIPE_RIGHT_ENABLED = "SWIPE_RIGHT_ENABLED"
     private val HIDDEN_APPS = "HIDDEN_APPS"
@@ -199,6 +209,54 @@ class Prefs(context: Context) {
     var dateTimeVisibility: Int
         get() = prefs.getInt(DATE_TIME_VISIBILITY, Constants.DateTime.ON)
         set(value) = prefs.edit { putInt(DATE_TIME_VISIBILITY, value).apply() }
+
+    var clockFont: String
+        get() = prefs.getString(CLOCK_FONT, "sans") ?: "sans"
+        set(value) = prefs.edit { putString(CLOCK_FONT, value) }
+    var dateFont: String
+        get() = prefs.getString(DATE_FONT, "sans") ?: "sans"
+        set(value) = prefs.edit { putString(DATE_FONT, value) }
+    var clockTextSize: Int
+        get() = prefs.getInt(CLOCK_TEXT_SIZE, 66)
+        set(value) = prefs.edit { putInt(CLOCK_TEXT_SIZE, value) }
+    var dateTextSize: Int
+        get() = prefs.getInt(DATE_TEXT_SIZE, 24)
+        set(value) = prefs.edit { putInt(DATE_TEXT_SIZE, value) }
+    var clockFontWeight: Int
+        get() = prefs.getInt(CLOCK_FONT_WEIGHT, 500)
+        set(value) = prefs.edit { putInt(CLOCK_FONT_WEIGHT, value) }
+    var dateFontWeight: Int
+        get() = prefs.getInt(DATE_FONT_WEIGHT, 500)
+        set(value) = prefs.edit { putInt(DATE_FONT_WEIGHT, value) }
+    var clockLetterSpacing: Float
+        get() = prefs.getFloat(CLOCK_LETTER_SPACING, 0f)
+        set(value) = prefs.edit { putFloat(CLOCK_LETTER_SPACING, value) }
+    var dateLetterSpacing: Float
+        get() = prefs.getFloat(DATE_LETTER_SPACING, 0f)
+        set(value) = prefs.edit { putFloat(DATE_LETTER_SPACING, value) }
+    var clockDateSpacing: Int
+        get() = prefs.getInt(CLOCK_DATE_SPACING, 0)
+        set(value) = prefs.edit { putInt(CLOCK_DATE_SPACING, value) }
+    var dateFormat: Int
+        get() = prefs.getInt(DATE_FORMAT, 0)
+        set(value) = prefs.edit { putInt(DATE_FORMAT, value) }
+
+    fun updateClockAppearance(
+        clockFont: String, dateFont: String, clockSize: Int, dateSize: Int,
+        clockWeight: Int, dateWeight: Int, clockSpacing: Float, dateSpacing: Float,
+        lineSpacing: Int, dateFormat: Int,
+    ) = prefs.edit {
+        putString(CLOCK_FONT, clockFont)
+        putString(DATE_FONT, dateFont)
+        putInt(CLOCK_TEXT_SIZE, clockSize)
+        putInt(DATE_TEXT_SIZE, dateSize)
+        putInt(CLOCK_FONT_WEIGHT, clockWeight)
+        putInt(DATE_FONT_WEIGHT, dateWeight)
+        putFloat(CLOCK_LETTER_SPACING, clockSpacing)
+        putFloat(DATE_LETTER_SPACING, dateSpacing)
+        putInt(CLOCK_DATE_SPACING, lineSpacing)
+        putInt(DATE_FORMAT, dateFormat)
+    }
 
     var swipeLeftEnabled: Boolean
         get() = prefs.getBoolean(SWIPE_LEFT_ENABLED, true)

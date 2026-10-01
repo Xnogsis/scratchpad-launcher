@@ -38,6 +38,7 @@ import app.olauncher.data.Constants
 import app.olauncher.data.Prefs
 import app.olauncher.databinding.FragmentHomeBinding
 import app.olauncher.helper.ScratchpadSync
+import app.olauncher.helper.ClockAppearance
 import app.olauncher.helper.Debouncer
 import app.olauncher.helper.MarkdownStyler
 import app.olauncher.helper.MarkdownAction
@@ -61,9 +62,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListener {
 
@@ -371,9 +370,9 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         binding.clock.isVisible = Constants.DateTime.isTimeVisible(prefs.dateTimeVisibility)
         binding.date.isVisible = Constants.DateTime.isDateVisible(prefs.dateTimeVisibility)
 
-//        var dateText = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
-        val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
-        var dateText = dateFormat.format(Date())
+        val clockStyle = ClockAppearance.read(prefs)
+        ClockAppearance.apply(requireContext(), binding.clock, binding.date, clockStyle)
+        var dateText = ClockAppearance.formatDate(clockStyle)
 
         if (!prefs.showStatusBar) {
             val battery = (requireContext().getSystemService(Context.BATTERY_SERVICE) as BatteryManager)

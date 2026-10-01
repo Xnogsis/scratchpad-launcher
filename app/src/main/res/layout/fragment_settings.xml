@@ -369,6 +369,15 @@
 
                 </FrameLayout>
 
+                <TextView
+                    android:id="@+id/clockAppearance"
+                    style="@style/TextSmallBold"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="8dp"
+                    android:text="@string/clock_appearance" />
+
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -102,4 +102,28 @@
         <item name="android:textColor">?attr/primaryColor</item>
         <item name="android:focusable">true</item>
     </style>
+
+    <style name="ClockAppearanceSection" parent="TextMedium">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ClockAppearanceSpinner" parent="Widget.AppCompat.Spinner.Underlined">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+    </style>
+
+    <style name="ClockAppearanceValue" parent="TextSmall">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">8dp</item>
+    </style>
+
+    <style name="ClockAppearanceSeek" parent="Widget.AppCompat.SeekBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">40dp</item>
+    </style>
 </resources>
