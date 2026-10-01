@@ -14,6 +14,7 @@ import android.text.style.ReplacementSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.util.Log
+import androidx.core.graphics.ColorUtils
 
 /** Marks a span as owned by [MarkdownStyler], so a restyle pass only clears its own spans. */
 private interface MarkdownSpan
@@ -22,6 +23,18 @@ private class MarkdownStyleSpan(style: Int) : StyleSpan(style), MarkdownSpan
 private class MarkdownSizeSpan(scale: Float) : RelativeSizeSpan(scale), MarkdownSpan
 private class MarkdownColorSpan(color: Int) : ForegroundColorSpan(color), MarkdownSpan
 private class MarkdownStrikeSpan : StrikethroughSpan(), MarkdownSpan
+
+private class HiddenMarkerSpan : ReplacementSpan(), MarkdownSpan {
+    override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fm: Paint.FontMetricsInt?) = 0
+    override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) = Unit
+}
+
+private class BulletMarkerSpan : ReplacementSpan(), MarkdownSpan {
+    override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fm: Paint.FontMetricsInt?) = paint.measureText("• ").toInt()
+    override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+        canvas.drawText("• ", x, y.toFloat(), paint)
+    }
+}
 
 /** Draws a tappable checkbox glyph over a `[ ]`/`[x]` marker range. */
 class CheckboxSpan(val checked: Boolean, private val color: Int) : ReplacementSpan(), MarkdownSpan {
@@ -85,17 +98,35 @@ object MarkdownStyler {
     private const val FLAG = Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
     private const val MARKER_DIM_SCALE = 0.7f
 
-    fun apply(editable: Editable, dimColor: Int, accentColor: Int) {
+    fun apply(editable: Editable, dimColor: Int, accentColor: Int, editing: Boolean) {
         try {
             editable.getSpans(0, editable.length, MarkdownSpan::class.java).forEach { editable.removeSpan(it) }
 
             for (match in MarkdownMatcher.findMatches(editable.toString())) {
                 when (match) {
-                    is MarkdownMatch.Header -> applyHeader(editable, match, dimColor)
+                    is MarkdownMatch.Header -> {
+                        applyHeader(editable, match, dimColor)
+                        val shade = ColorUtils.blendARGB(accentColor, dimColor, (match.level - 1) * 0.12f)
+                        editable.setSpan(MarkdownColorSpan(shade), match.contentRange.start, match.contentRange.end, FLAG)
+                        if (!editing) hide(editable, match.markerRange)
+                    }
                     is MarkdownMatch.Bold -> applyEmphasis(editable, Typeface.BOLD, match.content, match.openMarker, match.closeMarker, dimColor)
                     is MarkdownMatch.Italic -> applyEmphasis(editable, Typeface.ITALIC, match.content, match.openMarker, match.closeMarker, dimColor)
-                    is MarkdownMatch.Bullet -> dim(editable, match.markerRange, dimColor)
-                    is MarkdownMatch.Checkbox -> applyCheckbox(editable, match, dimColor, accentColor)
+                    is MarkdownMatch.Bullet -> {
+                        if (editing) dim(editable, match.markerRange, dimColor)
+                        else editable.setSpan(BulletMarkerSpan(), match.markerRange.start, match.markerRange.end, FLAG)
+                    }
+                    is MarkdownMatch.Checkbox -> {
+                        applyCheckbox(editable, match, dimColor, accentColor, editing)
+                        if (!editing) hide(editable, TextRange(match.markerRange.start - 2, match.markerRange.start))
+                    }
+                }
+                if (!editing) {
+                    when (match) {
+                        is MarkdownMatch.Bold -> { hide(editable, match.openMarker); hide(editable, match.closeMarker) }
+                        is MarkdownMatch.Italic -> { hide(editable, match.openMarker); hide(editable, match.closeMarker) }
+                        else -> Unit
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -124,8 +155,9 @@ object MarkdownStyler {
         editable.setSpan(MarkdownColorSpan(dimColor), closeMarker.start, closeMarker.end, FLAG)
     }
 
-    private fun applyCheckbox(editable: Editable, match: MarkdownMatch.Checkbox, dimColor: Int, accentColor: Int) {
-        editable.setSpan(CheckboxSpan(match.checked, accentColor), match.markerRange.start, match.markerRange.end, FLAG)
+    private fun applyCheckbox(editable: Editable, match: MarkdownMatch.Checkbox, dimColor: Int, accentColor: Int, editing: Boolean) {
+        if (editing) dim(editable, match.markerRange, dimColor)
+        else editable.setSpan(CheckboxSpan(match.checked, accentColor), match.markerRange.start, match.markerRange.end, FLAG)
         if (match.checked) {
             editable.setSpan(MarkdownStrikeSpan(), match.contentRange.start, match.contentRange.end, FLAG)
             editable.setSpan(MarkdownColorSpan(dimColor), match.contentRange.start, match.contentRange.end, FLAG)
@@ -134,5 +166,9 @@ object MarkdownStyler {
 
     private fun dim(editable: Editable, range: TextRange, dimColor: Int) {
         editable.setSpan(MarkdownColorSpan(dimColor), range.start, range.end, FLAG)
+    }
+
+    private fun hide(editable: Editable, range: TextRange) {
+        editable.setSpan(HiddenMarkerSpan(), range.start, range.end, FLAG)
     }
 }

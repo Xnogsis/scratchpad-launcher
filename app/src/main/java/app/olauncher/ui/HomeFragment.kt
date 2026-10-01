@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
 import android.content.res.Configuration
+import android.graphics.Typeface
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
@@ -21,6 +22,9 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.core.view.setPadding
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
@@ -36,6 +40,9 @@ import app.olauncher.databinding.FragmentHomeBinding
 import app.olauncher.helper.ScratchpadSync
 import app.olauncher.helper.Debouncer
 import app.olauncher.helper.MarkdownStyler
+import app.olauncher.helper.MarkdownAction
+import app.olauncher.helper.MarkdownFormatter
+import app.olauncher.helper.hideKeyboard
 import app.olauncher.helper.appUsagePermissionGranted
 import app.olauncher.helper.dpToPx
 import app.olauncher.helper.expandNotificationDrawer
@@ -65,9 +72,11 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     private lateinit var deviceManager: DevicePolicyManager
     private lateinit var scratchpadDebouncer: Debouncer
     private var syncPollJob: Job? = null
+    private var editingScratchpad = false
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private val scratchpad get() = binding.scratchpadPanel.scratchpad
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
@@ -94,10 +103,13 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     override fun onResume() {
         super.onResume()
         populateHomeScreen(false)
+        scratchpad.typeface = Typeface.create(prefs.scratchpadFont, Typeface.NORMAL)
+        scratchpad.setBackgroundColor(if (prefs.scratchpadBackdrop) requireContext().getColorFromAttr(R.attr.primaryColorInverseTrans50) else android.graphics.Color.TRANSPARENT)
+        scratchpad.setText(prefs.scratchpadText)
         viewModel.isOlauncherDefault()
         ScratchpadSync.readIfChanged(requireContext(), prefs)?.let {
             prefs.scratchpadText = it
-            binding.scratchpad?.setText(it)
+            scratchpad.setText(it)
         }
         if (prefs.showStatusBar) showStatusBar()
         else hideStatusBar()
@@ -106,10 +118,10 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         syncPollJob = viewLifecycleOwner.lifecycleScope.launch {
             while (isActive) {
                 delay(3000)
-                if (binding.scratchpad?.isFocused == true) continue
+                if (editingScratchpad) continue
                 ScratchpadSync.readIfChanged(requireContext(), prefs)?.let {
                     prefs.scratchpadText = it
-                    binding.scratchpad?.setText(it)
+                    scratchpad.setText(it)
                 }
             }
         }
@@ -281,24 +293,62 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun initScratchpad() {
-        binding.scratchpad?.setText(prefs.scratchpadText)
-        binding.scratchpad?.text?.let { styleScratchpadMarkdown(it) }
-        binding.scratchpad?.addTextChangedListener(afterTextChanged = { editable ->
+        binding.mainLayout.requestFocus()
+        scratchpad.setText(prefs.scratchpadText)
+        scratchpad.text?.let { styleScratchpadMarkdown(it) }
+        scratchpad.addTextChangedListener(afterTextChanged = { editable ->
             val text = editable?.toString().orEmpty()
             scratchpadDebouncer.submit { prefs.scratchpadText = text }
             editable?.let { styleScratchpadMarkdown(it) }
         })
-        binding.scratchpad?.setOnLongClickListener {
-            prefs.firstSettingsOpen = false
-            findNavController().navigate(R.id.action_mainFragment_to_settingsFragment)
-            true
+        scratchpad.setOnFocusChangeListener { _, focused ->
+            if (focused) setScratchpadEditing(true)
+        }
+        var keyboardWasVisible = false
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { root, insets ->
+            val visible = insets.isVisible(WindowInsetsCompat.Type.ime())
+            root.updatePadding(bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom)
+            if (keyboardWasVisible && !visible) setScratchpadEditing(false)
+            keyboardWasVisible = visible
+            insets
+        }
+        val toolbar = binding.scratchpadPanel
+        toolbar.formatDone.setOnClickListener {
+            scratchpad.hideKeyboard()
+            setScratchpadEditing(false)
+        }
+        mapOf(
+            toolbar.formatBold to MarkdownAction.BOLD,
+            toolbar.formatItalic to MarkdownAction.ITALIC,
+            toolbar.formatHeading to MarkdownAction.HEADING,
+            toolbar.formatBullet to MarkdownAction.BULLET,
+            toolbar.formatCheckbox to MarkdownAction.CHECKBOX,
+            toolbar.formatIndent to MarkdownAction.INDENT,
+            toolbar.formatOutdent to MarkdownAction.OUTDENT,
+        ).forEach { (button, action) ->
+            button.setOnClickListener {
+                val editable = scratchpad.text ?: return@setOnClickListener
+                val start = minOf(scratchpad.selectionStart, scratchpad.selectionEnd).coerceAtLeast(0)
+                val end = maxOf(scratchpad.selectionStart, scratchpad.selectionEnd).coerceAtLeast(0)
+                val edit = MarkdownFormatter.edit(editable.toString(), start, end, action)
+                editable.replace(edit.start, edit.end, edit.replacement)
+                scratchpad.setSelection(edit.selectionStart, edit.selectionEnd)
+            }
         }
     }
 
     private fun styleScratchpadMarkdown(editable: Editable) {
         val dimColor = requireContext().getColorFromAttr(R.attr.primaryColorTrans50)
         val accentColor = requireContext().getColorFromAttr(R.attr.primaryColor)
-        MarkdownStyler.apply(editable, dimColor, accentColor)
+        MarkdownStyler.apply(editable, dimColor, accentColor, editingScratchpad)
+    }
+
+    private fun setScratchpadEditing(editing: Boolean) {
+        editingScratchpad = editing
+        binding.scratchpadPanel.formatToolbar.isVisible = editing
+        binding.homeControls.isVisible = !editing
+        if (!editing) binding.root.requestFocus()
+        scratchpad.text?.let { styleScratchpadMarkdown(it) }
     }
 
     private fun setHomeAlignment(horizontalGravity: Int = prefs.homeAlignment) {
@@ -768,10 +818,11 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         super.onPause()
         syncPollJob?.cancel()
         scratchpadDebouncer.cancel()
-        binding.scratchpad?.text?.toString()?.let {
+        scratchpad.text?.toString()?.let {
             prefs.scratchpadText = it
             ScratchpadSync.write(requireContext(), prefs, it)
         }
+        setScratchpadEditing(false)
     }
 
     override fun onDestroyView() {

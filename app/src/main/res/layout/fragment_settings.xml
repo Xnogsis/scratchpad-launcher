@@ -32,6 +32,49 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginBottom="20dp"
+                android:orientation="vertical">
+                <TextView
+                    style="@style/TextMedium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="@string/scratchpad_options" />
+                <Button
+                    android:id="@+id/scratchpadFont"
+                    style="@style/ScratchpadTool"
+                    android:layout_width="match_parent"
+                    android:gravity="start|center_vertical"
+                    android:focusable="true"
+                    android:text="@string/scratchpad_font" />
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/scratchpadBackdrop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="12dp"
+                    android:textColor="?attr/primaryColor"
+                    android:text="@string/scratchpad_backdrop" />
+                <Button
+                    android:id="@+id/backupScratchpad"
+                    style="@style/ScratchpadTool"
+                    android:layout_width="match_parent"
+                    android:gravity="start|center_vertical"
+                    android:focusable="true"
+                    android:text="@string/backup_scratchpad" />
+                <Button
+                    android:id="@+id/restoreScratchpad"
+                    style="@style/ScratchpadTool"
+                    android:layout_width="match_parent"
+                    android:gravity="start|center_vertical"
+                    android:focusable="true"
+                    android:text="@string/restore_scratchpad" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_marginEnd="12dp"
                 android:background="@drawable/rounded_rect_shade_color"

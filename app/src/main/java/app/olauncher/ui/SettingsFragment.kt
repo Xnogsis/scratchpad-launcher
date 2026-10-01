@@ -16,9 +16,11 @@ import android.view.WindowInsets
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.olauncher.BuildConfig
 import app.olauncher.MainViewModel
@@ -35,9 +37,14 @@ import app.olauncher.helper.openAppInfo
 import app.olauncher.helper.openUrl
 import app.olauncher.helper.rateApp
 import app.olauncher.helper.ScratchpadSync
+import app.olauncher.helper.ScratchpadBackup
 import app.olauncher.helper.shareApp
 import app.olauncher.helper.showToast
 import app.olauncher.listener.DeviceAdmin
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListener {
 
@@ -82,10 +89,73 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         populateActionHints()
         initClickListeners()
         initObservers()
+        binding.scratchpadBackdrop.isChecked = prefs.scratchpadBackdrop
+        binding.scratchpadBackdrop.setOnCheckedChangeListener { _, checked -> prefs.scratchpadBackdrop = checked }
+    }
+
+    private val exportScratchpad = registerForActivityResult(ActivityResultContracts.CreateDocument("text/markdown")) { uri ->
+        viewModel.isPickingDocument = false
+        uri ?: return@registerForActivityResult
+        val context = requireContext()
+        val text = prefs.scratchpadText
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val bytes = ScratchpadBackup.encode(text)
+                    requireNotNull(context.contentResolver.openOutputStream(uri, "wt")).use { it.write(bytes) }
+                }
+                context.showToast(getString(R.string.backup_saved))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                context.showToast(getString(R.string.backup_failed))
+            }
+        }
+    }
+
+    private val importScratchpad = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        viewModel.isPickingDocument = false
+        uri ?: return@registerForActivityResult
+        val context = requireContext()
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val restored = withContext(Dispatchers.IO) {
+                    requireNotNull(context.contentResolver.openInputStream(uri)).use { ScratchpadBackup.read(it) }
+                }
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.restore_scratchpad)
+                    .setMessage(R.string.restore_confirmation)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(R.string.restore_scratchpad) { _, _ ->
+                        prefs.scratchpadText = restored
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            withContext(Dispatchers.IO) { ScratchpadSync.write(context, prefs, restored) }
+                            context.showToast(getString(R.string.backup_restored))
+                        }
+                    }
+                    .show()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                context.showToast(getString(R.string.restore_failed))
+            }
+        }
+    }
+
+    private fun chooseScratchpadFont() {
+        val fonts = arrayOf("sans-serif", "serif", "monospace")
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.scratchpad_font)
+            .setSingleChoiceItems(R.array.scratchpad_fonts, fonts.indexOf(prefs.scratchpadFont).coerceAtLeast(0)) { dialog, index ->
+                prefs.scratchpadFont = fonts[index]
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private val pickSyncFolder = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-        viewModel.isPickingSyncFolder = false
+        viewModel.isPickingDocument = false
         uri ?: return@registerForActivityResult
         requireContext().contentResolver.takePersistableUriPermission(
             uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -114,6 +184,15 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
 
         when (view.id) {
             R.id.olauncherHiddenApps -> showHiddenApps()
+            R.id.scratchpadFont -> chooseScratchpadFont()
+            R.id.backupScratchpad -> {
+                viewModel.isPickingDocument = true
+                exportScratchpad.launch("scratchpad.md")
+            }
+            R.id.restoreScratchpad -> {
+                viewModel.isPickingDocument = true
+                importScratchpad.launch(arrayOf("text/*", "application/octet-stream"))
+            }
             R.id.screenTimeOnOff -> viewModel.showDialog.postValue(Constants.Dialog.DIGITAL_WELLBEING)
             R.id.appInfo -> openAppInfo(requireContext(), Process.myUserHandle(), BuildConfig.APPLICATION_ID)
             R.id.setLauncher -> viewModel.resetLauncherLiveData.call()
@@ -169,7 +248,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
 
             R.id.share -> requireActivity().shareApp()
             R.id.syncFolder -> {
-                viewModel.isPickingSyncFolder = true
+                viewModel.isPickingDocument = true
                 pickSyncFolder.launch(null)
             }
             R.id.rate -> {
@@ -207,6 +286,9 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
     }
 
     private fun initClickListeners() {
+        binding.scratchpadFont.setOnClickListener(this)
+        binding.backupScratchpad.setOnClickListener(this)
+        binding.restoreScratchpad.setOnClickListener(this)
         binding.olauncherHiddenApps.setOnClickListener(this)
         binding.scrollLayout.setOnClickListener(this)
         binding.appInfo.setOnClickListener(this)
