@@ -34,7 +34,7 @@
         android:orientation="vertical"
         android:paddingHorizontal="24dp">
 
-        <TextClock
+        <app.olauncher.ui.FittingTextClock
             android:id="@+id/previewClock"
             style="@style/TextDefault"
             android:layout_width="wrap_content"

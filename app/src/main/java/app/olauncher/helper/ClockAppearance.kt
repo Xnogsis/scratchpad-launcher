@@ -8,6 +8,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.updatePadding
 import app.olauncher.R
 import app.olauncher.data.Prefs
+import app.olauncher.ui.FittingTextClock
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -82,10 +83,10 @@ object ClockAppearance {
         )
     }
 
-    fun apply(context: Context, clock: TextView, date: TextView, style: ClockStyle) {
+    fun apply(context: Context, clock: FittingTextClock, date: TextView, style: ClockStyle) {
         clock.typeface = typeface(context, style.clockFont, style.clockWeight)
         date.typeface = typeface(context, style.dateFont, style.dateWeight)
-        clock.textSize = style.clockSize.toFloat()
+        clock.setPreferredSizeSp(style.clockSize)
         date.textSize = style.dateSize.toFloat()
         clock.letterSpacing = style.clockSpacing
         date.letterSpacing = style.dateSpacing
