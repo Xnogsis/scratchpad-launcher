@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="clock_appearance">Clock &amp; date appearance</string>
+    <string name="style_preset">Style preset</string>
+    <string name="choose_preset">Choose a preset…</string>
+    <string name="font">Font</string>
+    <string name="weight">Weight</string>
+    <string name="date_format">Date format</string>
+    <string name="reset">Reset</string>
+    <string name="done">Done</string>
+    <string name="clock">Clock</string>
+    <string name="size_sp">Size · %1$d sp</string>
+    <string name="spacing_dp">Clock/date gap · %1$d dp</string>
+    <string name="letter_spacing_em">Letter spacing · %1$+.2f em</string>
+    <string name="clock_size_label">Size</string>
+    <string name="letter_spacing_label">Letter spacing</string>
+    <string name="clock_date_gap_label">Clock/date gap</string>
+</resources>
