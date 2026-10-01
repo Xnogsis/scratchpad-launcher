@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="32dp">
+
+    <app.olauncher.ui.MarkdownEditText
+        android:id="@+id/scratchpad"
+        style="@style/TextMedium"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="16dp"
+        android:background="@android:color/transparent"
+        android:gravity="top|start"
+        android:hint="@string/scratchpad_hint"
+        android:inputType="textMultiLine|textCapSentences"
+        android:overScrollMode="never"
+        android:padding="8dp"
+        android:scrollbars="vertical"
+        android:saveEnabled="false"
+        android:textColorHint="?attr/primaryColorTrans50" />
+
+    <HorizontalScrollView
+        android:id="@+id/formatToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:visibility="gone">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:orientation="horizontal">
+            <Button android:id="@+id/formatDone" style="@style/ScratchpadTool" android:text="@string/format_done" />
+            <Button android:id="@+id/formatBold" style="@style/ScratchpadTool" android:text="@string/format_bold" android:textStyle="bold" />
+            <Button android:id="@+id/formatItalic" style="@style/ScratchpadTool" android:text="@string/format_italic" android:textStyle="italic" />
+            <Button android:id="@+id/formatHeading" style="@style/ScratchpadTool" android:text="@string/format_heading" />
+            <Button android:id="@+id/formatBullet" style="@style/ScratchpadTool" android:text="@string/format_bullet" />
+            <Button android:id="@+id/formatCheckbox" style="@style/ScratchpadTool" android:text="@string/format_checkbox" />
+            <Button android:id="@+id/formatIndent" style="@style/ScratchpadTool" android:text="@string/format_indent" />
+            <Button android:id="@+id/formatOutdent" style="@style/ScratchpadTool" android:text="@string/format_outdent" />
+        </LinearLayout>
+    </HorizontalScrollView>
+</LinearLayout>

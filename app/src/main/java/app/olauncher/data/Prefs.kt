@@ -12,6 +12,8 @@ class Prefs(context: Context) {
     private val SCRATCHPAD_TEXT = "SCRATCHPAD_TEXT"
     private val SYNC_FOLDER_URI = "SYNC_FOLDER_URI"
     private val SYNC_LAST_MODIFIED = "SYNC_LAST_MODIFIED"
+    private val SCRATCHPAD_FONT = "SCRATCHPAD_FONT"
+    private val SCRATCHPAD_BACKDROP = "SCRATCHPAD_BACKDROP"
 
     private val FIRST_OPEN = "FIRST_OPEN"
     private val FIRST_OPEN_TIME = "FIRST_OPEN_TIME"
@@ -165,6 +167,14 @@ class Prefs(context: Context) {
     var scratchpadText: String
         get() = scratchpadPrefs.getString(SCRATCHPAD_TEXT, "").toString()
         set(value) = scratchpadPrefs.edit { putString(SCRATCHPAD_TEXT, value).apply() }
+
+    var scratchpadFont: String
+        get() = prefs.getString(SCRATCHPAD_FONT, "sans-serif") ?: "sans-serif"
+        set(value) = prefs.edit { putString(SCRATCHPAD_FONT, value) }
+
+    var scratchpadBackdrop: Boolean
+        get() = prefs.getBoolean(SCRATCHPAD_BACKDROP, false)
+        set(value) = prefs.edit { putBoolean(SCRATCHPAD_BACKDROP, value) }
 
     var homeAppsNum: Int
         get() = prefs.getInt(HOME_APPS_NUM, 3)
