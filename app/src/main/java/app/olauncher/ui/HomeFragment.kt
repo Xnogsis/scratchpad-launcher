@@ -24,6 +24,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.core.view.setPadding
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
@@ -304,8 +305,9 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
             if (focused) setScratchpadEditing(true)
         }
         var keyboardWasVisible = false
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { root, insets ->
             val visible = insets.isVisible(WindowInsetsCompat.Type.ime())
+            root.updatePadding(bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom)
             if (keyboardWasVisible && !visible) setScratchpadEditing(false)
             keyboardWasVisible = visible
             insets
