@@ -116,6 +116,6 @@
     <string name="cheers">¡Salud!</string>
     <string name="notification_bar">Barra de notificaciones</string>
     <string name="sync_folder">Carpeta de sincronización</string>
-    <string name="sync_folder_set">Sincronizando scratchpad.txt (mantén presionado para detener)</string>
+    <string name="sync_folder_set">Sincronizando scratchpad.md (mantén presionado para detener)</string>
     <string name="sync_folder_cleared">Sincronización detenida</string>
 </resources><!-- Spanish -->

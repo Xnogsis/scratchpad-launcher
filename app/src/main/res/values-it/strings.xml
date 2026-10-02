@@ -118,6 +118,6 @@
     <string name="cheers">Saluti!</string>
     <string name="notification_bar">Barra delle notifiche</string>
     <string name="sync_folder">Cartella di sincronizzazione</string>
-    <string name="sync_folder_set">Sincronizzazione di scratchpad.txt (tieni premuto per fermare)</string>
+    <string name="sync_folder_set">Sincronizzazione di scratchpad.md (tieni premuto per fermare)</string>
     <string name="sync_folder_cleared">Sincronizzazione interrotta</string>
 </resources><!-- Italian -->

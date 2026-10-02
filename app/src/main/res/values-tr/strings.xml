@@ -118,6 +118,6 @@
     <string name="cheers">Şerefe!</string>
     <string name="notification_bar">Bildirim çubuğu</string>
     <string name="sync_folder">Senkronizasyon klasörü</string>
-    <string name="sync_folder_set">scratchpad.txt senkronize ediliyor (durdurmak için uzun bas)</string>
+    <string name="sync_folder_set">scratchpad.md senkronize ediliyor (durdurmak için uzun bas)</string>
     <string name="sync_folder_cleared">Senkronizasyon durduruldu</string>
 </resources><!-- Turkish -->
