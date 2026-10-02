@@ -6,13 +6,13 @@ Write something down without opening an app, and keep it visible through restart
 
 ### Fork history
 
-**[Olauncher](https://github.com/tanujnotes/Olauncher) → [Scratchpad Launcher](https://github.com/mstcgalis/scratchpad-launcher) → [Scratchpad Plus](https://github.com/Xnogsis/scratchpad-launcher)**
+**[Olauncher](https://github.com/tanujnotes/Olauncher) → [Scratchpad Launcher](https://github.com/mstcgalis/scratchpad-launcher) → [Scratchpad Plus](https://github.com/Xnogsis/scratchpad-launcherPlus)**
 
 Scratchpad Plus is a fork of mstcgalis's Scratchpad Launcher, which added a persistent scratchpad to tanujnotes's Olauncher. This fork builds on both projects with Markdown editing, manual note backups, clock/date customization, and simpler home-screen gestures.
 
 ### Install
 
-Download signed APKs from [this fork's GitHub Releases](https://github.com/Xnogsis/scratchpad-launcher/releases). Requires Android 7.0 or newer. Source on the default branch can include changes not yet in a release.
+Download signed APKs from [this fork's GitHub Releases](https://github.com/Xnogsis/scratchpad-launcherPlus/releases). Requires Android 7.0 or newer. Source on the default branch can include changes not yet in a release.
 
 The [F-Droid listing](https://f-droid.org/packages/app.scratchpad.launcher/) belongs to upstream Scratchpad Launcher, not Scratchpad Plus. Both use `app.scratchpad.launcher`, but this fork has its own signing key: an upstream/F-Droid installation cannot be updated in place with this APK. Back up your note before uninstalling upstream, then install this fork and restore the note. Updates signed with this fork's same key retain your data.
 
@@ -40,7 +40,7 @@ Single Kotlin/Gradle module. Use Java 21, Android SDK 35, and `just` (see `justf
 - `just run` — install debug build on a connected device/emulator and launch it
 - `./gradlew assembleRelease` — build a signed release using `RELEASE_KEYSTORE_PATH`, `RELEASE_KEYSTORE_PASSWORD`, `RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD`
 
-The inherited `just release` recipe still targets upstream and must not be used to publish this fork. Publish releases to `Xnogsis/scratchpad-launcher` and reuse this fork's signing key. Never commit keystores or signing credentials.
+The inherited `just release` recipe still targets upstream and must not be used to publish this fork. Publish releases to `Xnogsis/scratchpad-launcherPlus` and reuse this fork's signing key. Never commit keystores or signing credentials.
 
 The application ID remains `app.scratchpad.launcher` and the Kotlin namespace remains `app.olauncher`; renaming the app does not change its local data storage.
 
