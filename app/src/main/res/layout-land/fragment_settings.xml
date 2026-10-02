@@ -29,6 +29,15 @@
             android:orientation="vertical"
             android:paddingVertical="56dp">
 
+            <Button
+                android:id="@+id/homeShortcuts"
+                style="@style/ScratchpadTool"
+                android:layout_width="match_parent"
+                android:layout_marginHorizontal="24dp"
+                android:gravity="start|center_vertical"
+                android:focusable="true"
+                android:text="@string/home_shortcuts" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

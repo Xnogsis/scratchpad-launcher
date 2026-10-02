@@ -39,6 +39,10 @@ object MarkdownFormatter {
                 }
             }
         }
+        if (start == end) {
+            val cursor = (start + replacement.length - (to - from)).coerceIn(from, from + replacement.length)
+            return MarkdownEdit(from, to, replacement, cursor, cursor)
+        }
         return MarkdownEdit(from, to, replacement, from, from + replacement.length)
     }
 }

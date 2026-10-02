@@ -172,46 +172,15 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     override fun onLongClick(view: View): Boolean {
-        when (view.id) {
-            R.id.homeApp1 -> showAppList(Constants.FLAG_SET_HOME_APP_1, prefs.appName1.isNotEmpty(), true)
-            R.id.homeApp2 -> showAppList(Constants.FLAG_SET_HOME_APP_2, prefs.appName2.isNotEmpty(), true)
-            R.id.homeApp3 -> showAppList(Constants.FLAG_SET_HOME_APP_3, prefs.appName3.isNotEmpty(), true)
-            R.id.homeApp4 -> showAppList(Constants.FLAG_SET_HOME_APP_4, prefs.appName4.isNotEmpty(), true)
-            R.id.homeApp5 -> showAppList(Constants.FLAG_SET_HOME_APP_5, prefs.appName5.isNotEmpty(), true)
-            R.id.homeApp6 -> showAppList(Constants.FLAG_SET_HOME_APP_6, prefs.appName6.isNotEmpty(), true)
-            R.id.homeApp7 -> showAppList(Constants.FLAG_SET_HOME_APP_7, prefs.appName7.isNotEmpty(), true)
-            R.id.homeApp8 -> showAppList(Constants.FLAG_SET_HOME_APP_8, prefs.appName8.isNotEmpty(), true)
-            R.id.clock -> {
-                showAppList(Constants.FLAG_SET_CLOCK_APP)
-                prefs.clockAppPackage = ""
-                prefs.clockAppClassName = ""
-                prefs.clockAppUser = ""
-            }
-
-            R.id.date -> {
-                showAppList(Constants.FLAG_SET_CALENDAR_APP)
-                prefs.calendarAppPackage = ""
-                prefs.calendarAppClassName = ""
-                prefs.calendarAppUser = ""
-            }
-
-            R.id.tvScreenTime -> {
-                showAppList(Constants.FLAG_SET_SCREEN_TIME_APP)
-                prefs.screenTimeAppPackage = ""
-                prefs.screenTimeAppClassName = ""
-                prefs.screenTimeAppUser = ""
-            }
-
-            R.id.setDefaultLauncher -> {
-                prefs.hideSetDefaultLauncher = true
-                binding.setDefaultLauncher.visibility = View.GONE
-                if (viewModel.isOlauncherDefault.value != true) {
-                    requireContext().showToast(R.string.set_as_default_launcher)
-                    findNavController().navigate(R.id.action_mainFragment_to_settingsFragment)
-                }
-            }
-        }
+        openSettings()
         return true
+    }
+
+    private fun openSettings() {
+        if (findNavController().currentDestination?.id != R.id.mainFragment) return
+        scratchpad.hideKeyboard()
+        findNavController().navigate(R.id.action_mainFragment_to_settingsFragment)
+        viewModel.firstOpen(false)
     }
 
     private fun initObservers() {
@@ -260,7 +229,10 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun initClickListeners() {
+        binding.mainLayout.setOnLongClickListener(this)
+        binding.firstRunTips.setOnLongClickListener(this)
         binding.lock.setOnClickListener(this)
+        binding.lock.setOnLongClickListener(this)
         // Home button for recents feature disabled
         // binding.recents.setOnClickListener(this)
         binding.clock.setOnClickListener(this)
@@ -293,6 +265,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
 
     private fun initScratchpad() {
         binding.mainLayout.requestFocus()
+        scratchpad.onBlankLongClick = { openSettings() }
         scratchpad.setText(prefs.scratchpadText)
         scratchpad.text?.let { styleScratchpadMarkdown(it) }
         scratchpad.addTextChangedListener(afterTextChanged = { editable ->
@@ -594,6 +567,10 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun homeAppClicked(location: Int) {
+        if (prefs.getAppName(location).isEmpty()) {
+            showAppList(location, includeHiddenApps = true)
+            return
+        }
         launchAppOrShortcut(
             appName = prefs.getAppName(location),
             packageName = prefs.getAppPackage(location),
@@ -727,10 +704,6 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
 
     private fun showLongPressToast() = requireContext().showToast(getString(R.string.long_press_to_select_app))
 
-    private fun textOnClick(view: View) = onClick(view)
-
-    private fun textOnLongClick(view: View) = onLongClick(view)
-
     private fun getSwipeGestureListener(context: Context): View.OnTouchListener {
         return object : OnSwipeTouchListener(context) {
             override fun onSwipeLeft() {
@@ -754,13 +727,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
             }
 
             override fun onLongClick() {
-                super.onLongClick()
-                try {
-                    findNavController().navigate(R.id.action_mainFragment_to_settingsFragment)
-                    viewModel.firstOpen(false)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                binding.mainLayout.performLongClick()
             }
 
             override fun onDoubleClick() {
@@ -802,13 +769,11 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
             }
 
             override fun onLongClick(view: View) {
-                super.onLongClick(view)
-                textOnLongClick(view)
+                view.performLongClick()
             }
 
             override fun onClick(view: View) {
-                super.onClick(view)
-                textOnClick(view)
+                view.performClick()
             }
         }
     }

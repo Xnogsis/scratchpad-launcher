@@ -22,7 +22,9 @@ class MarkdownEditText @JvmOverloads constructor(
     private var downX = 0f
     private var downY = 0f
     private var moved = false
+    private var pressedBlankSpace = false
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    var onBlankLongClick: (() -> Unit)? = null
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (event.actionMasked == MotionEvent.ACTION_DOWN) {
@@ -30,11 +32,13 @@ class MarkdownEditText @JvmOverloads constructor(
             downX = event.x
             downY = event.y
             moved = false
+            pressedBlankSpace = !textAt(event.x, event.y)
         }
+        if (kotlin.math.abs(event.x - downX) > touchSlop || kotlin.math.abs(event.y - downY) > touchSlop) {
+            moved = true
+        }
+        if (event.actionMasked == MotionEvent.ACTION_CANCEL) pressedBlankSpace = false
         pressedCheckbox?.let { span ->
-            if (kotlin.math.abs(event.x - downX) > touchSlop || kotlin.math.abs(event.y - downY) > touchSlop) {
-                moved = true
-            }
             if (event.actionMasked == MotionEvent.ACTION_UP) {
                 if (!moved && event.eventTime - event.downTime < ViewConfiguration.getLongPressTimeout()
                     && checkboxAt(event.x, event.y) === span) {
@@ -53,6 +57,26 @@ class MarkdownEditText @JvmOverloads constructor(
     }
 
     override fun performClick(): Boolean = super.performClick()
+
+    override fun performLongClick(): Boolean {
+        val onBlank = onBlankLongClick
+        if (pressedBlankSpace && !moved && onBlank != null) {
+            onBlank()
+            performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+            return true
+        }
+        return super.performLongClick()
+    }
+
+    private fun textAt(touchX: Float, touchY: Float): Boolean {
+        if (text.isNullOrEmpty()) return false
+        val currentLayout = layout ?: return false
+        val x = touchX - totalPaddingLeft + scrollX
+        val y = touchY - totalPaddingTop + scrollY
+        if (y < 0 || y >= currentLayout.height) return false
+        val line = currentLayout.getLineForVertical(y.toInt())
+        return x >= currentLayout.getLineLeft(line) && x < currentLayout.getLineRight(line)
+    }
 
     private fun checkboxAt(touchX: Float, touchY: Float): CheckboxSpan? {
         val editable = text ?: return null
