@@ -154,6 +154,30 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
             .show()
     }
 
+    private fun chooseHomeShortcut() {
+        val shortcuts = (1..prefs.homeAppsNum).map { slot ->
+            slot to getString(R.string.home_app_slot, slot, prefs.getAppName(slot).ifEmpty { getString(R.string.app) })
+        } + listOf(
+            Constants.FLAG_SET_CLOCK_APP to getString(R.string.clock),
+            Constants.FLAG_SET_CALENDAR_APP to getString(R.string.date),
+            Constants.FLAG_SET_SCREEN_TIME_APP to getString(R.string.screen_time),
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.home_shortcuts)
+            .setItems(shortcuts.map { it.second }.toTypedArray()) { _, index ->
+                val flag = shortcuts[index].first
+                val rename = flag in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_8 &&
+                    prefs.getAppName(flag).isNotEmpty()
+                viewModel.getAppList(true)
+                findNavController().navigate(
+                    R.id.action_settingsFragment_to_appListFragment,
+                    bundleOf(Constants.Key.FLAG to flag, Constants.Key.RENAME to rename)
+                )
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
     private val pickSyncFolder = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         viewModel.isPickingDocument = false
         uri ?: return@registerForActivityResult
@@ -201,6 +225,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
             // R.id.homeButtonRecents -> toggleHomeButtonRecents()
             R.id.autoShowKeyboard -> toggleKeyboardText()
             R.id.homeAppsNum -> binding.appsNumSelectLayout.visibility = View.VISIBLE
+            R.id.homeShortcuts -> chooseHomeShortcut()
             R.id.alignment -> binding.alignmentSelectLayout.visibility = View.VISIBLE
             R.id.alignmentLeft -> viewModel.updateHomeAlignment(Gravity.START)
             R.id.alignmentCenter -> viewModel.updateHomeAlignment(Gravity.CENTER)
@@ -300,6 +325,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         // Home button for recents feature disabled
         // binding.homeButtonRecents.setOnClickListener(this)
         binding.homeAppsNum.setOnClickListener(this)
+        binding.homeShortcuts.setOnClickListener(this)
         binding.screenTimeOnOff.setOnClickListener(this)
         binding.alignment.setOnClickListener(this)
         binding.alignmentLeft.setOnClickListener(this)
