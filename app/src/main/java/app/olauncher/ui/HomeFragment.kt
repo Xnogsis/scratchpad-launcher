@@ -14,7 +14,6 @@ import android.text.Editable
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.DragEvent
 import android.view.MotionEvent
 import android.view.View
@@ -28,7 +27,6 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.view.ViewCompat
@@ -84,7 +82,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     private lateinit var deviceManager: DevicePolicyManager
     private lateinit var scratchpadDebouncer: Debouncer
     private var syncPollJob: Job? = null
-    private var homeAppMenu: PopupMenu? = null
+    private var homeAppMenu: AlertDialog? = null
     private var editingScratchpad = false
 
     private var _binding: FragmentHomeBinding? = null
@@ -117,7 +115,6 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         super.onResume()
         populateHomeScreen(false)
         scratchpad.typeface = Typeface.create(prefs.scratchpadFont, Typeface.NORMAL)
-        scratchpad.setBackgroundColor(if (prefs.scratchpadBackdrop) requireContext().getColorFromAttr(R.attr.primaryColorInverseTrans50) else android.graphics.Color.TRANSPARENT)
         scratchpad.setText(prefs.scratchpadText)
         viewModel.isOlauncherDefault()
         ScratchpadSync.readIfChanged(requireContext(), prefs)?.let {
@@ -196,28 +193,22 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
 
     private fun showHomeAppMenu(view: View, slot: Int) {
         view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-        val uninstallId = 1
-        val renameId = 2
-        val hideId = 3
-        val infoId = 4
-        val removeId = 5
-        val popupMenu = PopupMenu(requireContext(), view)
-        homeAppMenu = popupMenu
-        popupMenu.setOnDismissListener {
-            if (homeAppMenu === popupMenu) homeAppMenu = null
-        }
-        popupMenu.apply {
-            menu.add(Menu.NONE, uninstallId, Menu.NONE, R.string.delete)
-            menu.add(Menu.NONE, renameId, Menu.NONE, R.string.rename)
-            menu.add(Menu.NONE, hideId, Menu.NONE, R.string.adapter_hide)
-            menu.add(Menu.NONE, infoId, Menu.NONE, R.string.info)
-            menu.add(Menu.NONE, removeId, Menu.NONE, R.string.remove)
-            setOnMenuItemClickListener { item ->
-                val context = requireContext()
+        val context = requireContext()
+        val dialog = AlertDialog.Builder(context)
+            .setTitle(prefs.getAppName(slot))
+            .setItems(
+                arrayOf(
+                    getString(R.string.delete),
+                    getString(R.string.rename),
+                    getString(R.string.adapter_hide),
+                    getString(R.string.info),
+                    getString(R.string.remove),
+                )
+            ) { _, which ->
                 val packageName = prefs.getAppPackage(slot)
                 val user = getUserHandleFromString(context, prefs.getAppUser(slot))
-                when (item.itemId) {
-                    uninstallId -> {
+                when (which) {
+                    0 -> {
                         if (prefs.getIsShortcut(slot)) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1)
                                 context.deletePinnedShortcut(packageName, prefs.getShortcutId(slot), user)
@@ -228,7 +219,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
                             viewModel.getAppList()
                         }
                     }
-                    renameId -> {
+                    1 -> {
                         val input = EditText(context).apply {
                             setText(prefs.getAppName(slot))
                             selectAll()
@@ -245,7 +236,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
                             }
                             .show()
                     }
-                    hideId -> {
+                    2 -> {
                         if (prefs.getIsShortcut(slot)) {
                             context.showToast("Hiding pinned shortcuts is not supported")
                         } else {
@@ -256,16 +247,19 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
                             viewModel.getHiddenApps()
                         }
                     }
-                    infoId -> openAppInfo(context, user, packageName)
-                    removeId -> {
+                    3 -> openAppInfo(context, user, packageName)
+                    4 -> {
                         prefs.clearHomeApp(slot)
                         populateHomeScreen(false)
                     }
                 }
-                true
             }
-            show()
+            .create()
+        homeAppMenu = dialog
+        dialog.setOnDismissListener {
+            if (homeAppMenu === dialog) homeAppMenu = null
         }
+        dialog.show()
     }
 
     private fun openSettings() {
