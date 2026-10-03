@@ -118,6 +118,6 @@
     <string name="cheers">будьмо!</string>
     <string name="notification_bar">Панель сповіщень</string>
     <string name="sync_folder">Папка синхронізації</string>
-    <string name="sync_folder_set">Синхронізація scratchpad.txt (довге натискання — зупинити)</string>
+    <string name="sync_folder_set">Синхронізація scratchpad.md (довге натискання — зупинити)</string>
     <string name="sync_folder_cleared">Синхронізацію зупинено</string>
 </resources><!-- Ukrainian -->

@@ -6,9 +6,10 @@ import android.provider.DocumentsContract.*
 import androidx.core.net.toUri
 import app.olauncher.data.Prefs
 
-/** Mirrors the scratchpad to scratchpad.txt in a user-picked SAF folder (for Syncthing etc). */
+/** Mirrors the scratchpad to scratchpad.md in a user-picked SAF folder (e.g. an Obsidian vault). */
 object ScratchpadSync {
-    private const val NAME = "scratchpad.txt"
+    private const val NAME = "scratchpad.md"
+    private const val OLD_NAME = "scratchpad.txt"
 
     private fun fileUri(context: Context, prefs: Prefs, create: Boolean): Uri? {
         if (prefs.syncFolderUri.isEmpty()) return null
@@ -19,10 +20,15 @@ object ScratchpadSync {
             buildChildDocumentsUriUsingTree(tree, parentId),
             arrayOf(Document.COLUMN_DOCUMENT_ID, Document.COLUMN_DISPLAY_NAME), null, null, null
         )?.use { c ->
-            while (c.moveToNext())
-                if (c.getString(1) == NAME) return buildDocumentUriUsingTree(tree, c.getString(0))
+            var old: Uri? = null
+            while (c.moveToNext()) when (c.getString(1)) {
+                NAME -> return buildDocumentUriUsingTree(tree, c.getString(0))
+                OLD_NAME -> old = buildDocumentUriUsingTree(tree, c.getString(0))
+            }
+            old?.let { return renameDocument(resolver, it, NAME) }
         }
-        return if (create) createDocument(resolver, buildDocumentUriUsingTree(tree, parentId), "text/plain", NAME) else null
+        // octet-stream: any text/* type makes the provider append its own extension (scratchpad.md.txt)
+        return if (create) createDocument(resolver, buildDocumentUriUsingTree(tree, parentId), "application/octet-stream", NAME) else null
     }
 
     private fun lastModified(context: Context, uri: Uri): Long =

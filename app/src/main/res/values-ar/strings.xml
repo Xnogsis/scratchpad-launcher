@@ -115,6 +115,6 @@
     <string name="cheers">هتافات!</string>
     <string name="notification_bar">شريط الإشعارات</string>
     <string name="sync_folder">مجلد المزامنة</string>
-    <string name="sync_folder_set">مزامنة scratchpad.txt (اضغط مطولاً للإيقاف)</string>
+    <string name="sync_folder_set">مزامنة scratchpad.md (اضغط مطولاً للإيقاف)</string>
     <string name="sync_folder_cleared">تم إيقاف المزامنة</string>
 </resources>

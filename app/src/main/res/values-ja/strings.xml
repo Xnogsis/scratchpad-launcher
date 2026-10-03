@@ -118,6 +118,6 @@
     <string name="cheers">乾杯!</string>
     <string name="notification_bar">通知バー</string>
     <string name="sync_folder">同期フォルダ</string>
-    <string name="sync_folder_set">scratchpad.txt を同期中（長押しで停止）</string>
+    <string name="sync_folder_set">scratchpad.md を同期中（長押しで停止）</string>
     <string name="sync_folder_cleared">同期を停止しました</string>
 </resources> <!-- Japanese -->
