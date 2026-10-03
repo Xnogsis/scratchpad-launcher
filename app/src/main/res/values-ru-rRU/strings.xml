@@ -118,6 +118,6 @@
     <string name="cheers">Ваше здоровье!</string>
     <string name="notification_bar">Панель уведомлений</string>
     <string name="sync_folder">Папка синхронизации</string>
-    <string name="sync_folder_set">Синхронизация scratchpad.txt (долгое нажатие — остановить)</string>
+    <string name="sync_folder_set">Синхронизация scratchpad.md (долгое нажатие — остановить)</string>
     <string name="sync_folder_cleared">Синхронизация остановлена</string>
 </resources><!-- Russian -->

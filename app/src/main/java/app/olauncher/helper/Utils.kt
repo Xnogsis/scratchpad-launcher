@@ -410,6 +410,17 @@ fun Context.uninstall(packageName: String) {
     startActivity(intent)
 }
 
+fun Context.uninstallOrShowInfo(packageName: String, user: UserHandle) {
+    if (user != android.os.Process.myUserHandle()) {
+        openAppInfo(this, user, packageName)
+    } else if (isSystemApp(packageName, user)) {
+        showToast(R.string.system_app_cannot_delete)
+        openAppInfo(this, user, packageName)
+    } else {
+        uninstall(packageName)
+    }
+}
+
 @ColorInt
 fun Context.getColorFromAttr(
     @AttrRes attrColor: Int,

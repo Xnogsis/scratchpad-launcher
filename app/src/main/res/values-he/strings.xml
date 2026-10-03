@@ -113,6 +113,6 @@
     <string name="app_usage_message">כדי להציג/להסתיר את זמן המסך שלך במסך הבית, אנא אפשר או בטל את הרשאת השימוש באפליקציה. הערה: לא נאספים נתוני שימוש באפליקציה. הכל מעובד במכשיר שלך.</string>
     <string name="notification_bar">שורת ההתראות</string>
     <string name="sync_folder">תיקיית סנכרון</string>
-    <string name="sync_folder_set">מסנכרן את scratchpad.txt (לחיצה ארוכה לעצירה)</string>
+    <string name="sync_folder_set">מסנכרן את scratchpad.md (לחיצה ארוכה לעצירה)</string>
     <string name="sync_folder_cleared">הסנכרון הופסק</string>
 </resources>

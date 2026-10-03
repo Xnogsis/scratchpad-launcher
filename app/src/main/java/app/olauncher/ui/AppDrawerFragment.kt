@@ -3,7 +3,6 @@ package app.olauncher.ui
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.os.Process
 import android.text.Spannable
 import android.view.LayoutInflater
 import android.view.View
@@ -28,13 +27,12 @@ import app.olauncher.helper.deletePinnedShortcut
 import app.olauncher.helper.hideKeyboard
 import app.olauncher.helper.isEinkDisplay
 import app.olauncher.helper.isSystemAnimationsDisabled
-import app.olauncher.helper.isSystemApp
 import app.olauncher.helper.openAppInfo
 import app.olauncher.helper.openSearch
 import app.olauncher.helper.openUrl
 import app.olauncher.helper.showKeyboard
 import app.olauncher.helper.showToast
-import app.olauncher.helper.uninstall
+import app.olauncher.helper.uninstallOrShowInfo
 
 class AppDrawerFragment : BaseFragment() {
 
@@ -177,16 +175,8 @@ class AppDrawerFragment : BaseFragment() {
                             )
                         }
 
-                    is AppModel.App -> {
-                        if (appModel.user != Process.myUserHandle()) {
-                            openAppInfo(requireContext(), appModel.user, appModel.appPackage)
-                        } else if (requireContext().isSystemApp(appModel.appPackage, appModel.user)) {
-                            requireContext().showToast(getString(R.string.system_app_cannot_delete))
-                            openAppInfo(requireContext(), appModel.user, appModel.appPackage)
-                        } else {
-                            requireContext().uninstall(appModel.appPackage)
-                        }
-                    }
+                    is AppModel.App ->
+                        requireContext().uninstallOrShowInfo(appModel.appPackage, appModel.user)
                 }
                 viewModel.getAppList()
             },
@@ -314,16 +304,8 @@ class AppDrawerFragment : BaseFragment() {
                 return@setOnClickListener
             }
 
-            when (flag) {
-                Constants.FLAG_SET_HOME_APP_1 -> prefs.appName1 = name
-                Constants.FLAG_SET_HOME_APP_2 -> prefs.appName2 = name
-                Constants.FLAG_SET_HOME_APP_3 -> prefs.appName3 = name
-                Constants.FLAG_SET_HOME_APP_4 -> prefs.appName4 = name
-                Constants.FLAG_SET_HOME_APP_5 -> prefs.appName5 = name
-                Constants.FLAG_SET_HOME_APP_6 -> prefs.appName6 = name
-                Constants.FLAG_SET_HOME_APP_7 -> prefs.appName7 = name
-                Constants.FLAG_SET_HOME_APP_8 -> prefs.appName8 = name
-            }
+            if (flag in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_8)
+                prefs.setAppName(flag, name)
             findNavController().popBackStack()
         }
     }

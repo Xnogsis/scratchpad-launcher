@@ -116,6 +116,6 @@
     <string name="cheers">Bersulang!</string>
     <string name="notification_bar">Bilah pemberitahuan</string>
     <string name="sync_folder">Folder sinkronisasi</string>
-    <string name="sync_folder_set">Menyinkronkan scratchpad.txt (tekan lama untuk berhenti)</string>
+    <string name="sync_folder_set">Menyinkronkan scratchpad.md (tekan lama untuk berhenti)</string>
     <string name="sync_folder_cleared">Sinkronisasi dihentikan</string>
 </resources><!-- Indonesian -->

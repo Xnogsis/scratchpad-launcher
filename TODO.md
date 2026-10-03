@@ -66,5 +66,5 @@
 ### Scratchpad Sync Folder (Syncthing)
 - **Status**: ✅ ADDED (untested on device)
 - Settings > "Sync folder" opens a SAF folder picker; long-press stops syncing
-- `scratchpad.txt` in that folder is rewritten on pause and re-read on resume if it changed externally (`helper/ScratchpadSync.kt`)
+- `scratchpad.md` in that folder is rewritten on pause and re-read on resume if it changed externally (`helper/ScratchpadSync.kt`)
 - Point Syncthing at the chosen folder. Local wins on pause (no merge); replaces the old, unwired "Save scratchpad" item

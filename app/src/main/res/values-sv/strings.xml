@@ -116,6 +116,6 @@
     <string name="cheers">Skål!</string>
     <string name="notification_bar">Aviseringsfält</string>
     <string name="sync_folder">Synkmapp</string>
-    <string name="sync_folder_set">Synkar scratchpad.txt (håll nedtryckt för att stoppa)</string>
+    <string name="sync_folder_set">Synkar scratchpad.md (håll nedtryckt för att stoppa)</string>
     <string name="sync_folder_cleared">Synkning stoppad</string>
 </resources><!-- Swedish -->
