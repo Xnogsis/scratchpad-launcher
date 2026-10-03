@@ -1,6 +1,7 @@
 package app.olauncher.ui
 
 import android.app.admin.DevicePolicyManager
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
@@ -14,7 +15,10 @@ import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.Menu
+import android.view.DragEvent
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.widget.EditText
@@ -71,6 +75,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.Date
+import kotlin.math.hypot
 
 class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListener {
 
@@ -79,6 +84,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     private lateinit var deviceManager: DevicePolicyManager
     private lateinit var scratchpadDebouncer: Debouncer
     private var syncPollJob: Job? = null
+    private var homeAppMenu: PopupMenu? = null
     private var editingScratchpad = false
 
     private var _binding: FragmentHomeBinding? = null
@@ -195,7 +201,12 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         val hideId = 3
         val infoId = 4
         val removeId = 5
-        PopupMenu(requireContext(), view).apply {
+        val popupMenu = PopupMenu(requireContext(), view)
+        homeAppMenu = popupMenu
+        popupMenu.setOnDismissListener {
+            if (homeAppMenu === popupMenu) homeAppMenu = null
+        }
+        popupMenu.apply {
             menu.add(Menu.NONE, uninstallId, Menu.NONE, R.string.delete)
             menu.add(Menu.NONE, renameId, Menu.NONE, R.string.rename)
             menu.add(Menu.NONE, hideId, Menu.NONE, R.string.adapter_hide)
@@ -299,14 +310,44 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     private fun initSwipeTouchListener() {
         val context = requireContext()
         binding.mainLayout.setOnTouchListener(getSwipeGestureListener(context))
-        binding.homeApp1.setOnTouchListener(getViewSwipeTouchListener(context, binding.homeApp1))
-        binding.homeApp2.setOnTouchListener(getViewSwipeTouchListener(context, binding.homeApp2))
-        binding.homeApp3.setOnTouchListener(getViewSwipeTouchListener(context, binding.homeApp3))
-        binding.homeApp4.setOnTouchListener(getViewSwipeTouchListener(context, binding.homeApp4))
-        binding.homeApp5.setOnTouchListener(getViewSwipeTouchListener(context, binding.homeApp5))
-        binding.homeApp6.setOnTouchListener(getViewSwipeTouchListener(context, binding.homeApp6))
-        binding.homeApp7.setOnTouchListener(getViewSwipeTouchListener(context, binding.homeApp7))
-        binding.homeApp8.setOnTouchListener(getViewSwipeTouchListener(context, binding.homeApp8))
+        val homeApps = listOf(
+            binding.homeApp1, binding.homeApp2, binding.homeApp3, binding.homeApp4,
+            binding.homeApp5, binding.homeApp6, binding.homeApp7, binding.homeApp8,
+        )
+        homeApps.forEach { slotView ->
+            slotView.setOnTouchListener(getViewSwipeTouchListener(context, slotView))
+        }
+        val dragListener = View.OnDragListener { target, event ->
+            val from = event.localState as? Int
+            val to = target.tag?.toString()?.toIntOrNull()
+            when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> event.localState is Int
+                DragEvent.ACTION_DRAG_ENTERED -> {
+                    if (to != from) target.alpha = 0.5f
+                    true
+                }
+                DragEvent.ACTION_DRAG_EXITED -> {
+                    if (to != from) target.alpha = 1f
+                    true
+                }
+                DragEvent.ACTION_DROP -> {
+                    if (from == null || to == null) false
+                    else {
+                        if (from != to) {
+                            prefs.swapHomeApps(from, to)
+                            populateHomeScreen(false)
+                        }
+                        true
+                    }
+                }
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    homeApps.forEach { it.alpha = 1f }
+                    true
+                }
+                else -> true
+            }
+        }
+        homeApps.forEach { it.setOnDragListener(dragListener) }
     }
 
     private fun initClickListeners() {
@@ -426,6 +467,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
 
         val clockStyle = ClockAppearance.read(prefs)
         ClockAppearance.apply(requireContext(), binding.clock, binding.date, clockStyle)
+        ClockAppearance.applyHourFormat(binding.clock, prefs.clockHourFormat)
         var dateText = ClockAppearance.formatDate(clockStyle)
 
         if (!prefs.showStatusBar) {
@@ -829,6 +871,40 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
 
     private fun getViewSwipeTouchListener(context: Context, view: View): View.OnTouchListener {
         return object : ViewSwipeTouchListener(context, view) {
+            private var downX = 0f
+            private var downY = 0f
+            private var longPressed = false
+
+            override fun onTouch(view: View, event: MotionEvent): Boolean {
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        downX = event.x
+                        downY = event.y
+                        longPressed = false
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        val slot = view.tag?.toString()?.toIntOrNull()
+                        if (longPressed && slot != null && slot in 1..8 && prefs.getAppName(slot).isNotEmpty()) {
+                            if (hypot((event.x - downX).toDouble(), (event.y - downY).toDouble()) >
+                                2.0 * ViewConfiguration.get(context).scaledTouchSlop
+                            ) {
+                                homeAppMenu?.dismiss()
+                                longPressed = false
+                                view.isPressed = false
+                                val started = view.startDragAndDrop(
+                                    ClipData.newPlainText("slot", slot.toString()),
+                                    View.DragShadowBuilder(view),
+                                    slot,
+                                    0,
+                                )
+                                if (started) view.alpha = 0.3f
+                            }
+                        }
+                    }
+                }
+                return super.onTouch(view, event)
+            }
+
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
                 openSwipeLeftApp()
@@ -850,6 +926,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
             }
 
             override fun onLongClick(view: View) {
+                longPressed = true
                 view.performLongClick()
             }
 

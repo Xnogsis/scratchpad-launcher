@@ -1,6 +1,6 @@
-# Scratchpad Launcher
+# Scratchpad Plus
 
-Minimal Android launcher: top half is a persistent plain-text scratchpad, bottom half a small fixed app grid. Fork of [Olauncher](https://github.com/tanujnotes/Olauncher) — package/namespace is still `app.olauncher`, applicationId is `app.scratchpad.launcher`. See `README.md` for product description, `idea.md` for original design notes.
+Minimal Android launcher: top half is a persistent plain-text scratchpad, bottom half a small fixed app grid. Scratchpad Plus uses application ID `app.scratchpad.plus` and Kotlin namespace `app.olauncher`; it can be installed alongside upstream Scratchpad Launcher (`app.scratchpad.launcher`, F-Droid). Moving from an earlier Scratchpad Plus build or upstream requires backing up and restoring the note; settings and home apps do not carry over. See `README.md` for product details and `idea.md` for original design notes.
 
 ## Build
 

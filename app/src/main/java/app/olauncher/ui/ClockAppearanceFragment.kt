@@ -58,6 +58,7 @@ class ClockAppearanceFragment : BaseFragment() {
         binding.dateFont.adapter = adapter(ClockAppearance.fonts.map { it.first })
         binding.clockWeight.adapter = adapter(ClockAppearance.weights.map { it.first })
         binding.dateWeight.adapter = adapter(ClockAppearance.weights.map { it.first })
+        binding.timeFormat.adapter = adapter(ClockAppearance.hourFormats.map { it.first })
         binding.dateFormat.adapter = adapter(ClockAppearance.dateFormats.map { it.first })
 
         binding.preset.onItemSelected { position ->
@@ -77,6 +78,13 @@ class ClockAppearanceFragment : BaseFragment() {
         binding.clockWeight.onItemSelected { position ->
             val weight = ClockAppearance.weights[position].second
             if (weight != style.clockWeight) update { copy(clockWeight = weight) }
+        }
+        binding.timeFormat.onItemSelected { position ->
+            val mode = ClockAppearance.hourFormats[position].second
+            if (!settingControls && mode != prefs.clockHourFormat) {
+                prefs.clockHourFormat = mode
+                ClockAppearance.applyHourFormat(binding.previewClock, mode)
+            }
         }
         binding.dateWeight.onItemSelected { position ->
             val weight = ClockAppearance.weights[position].second
@@ -111,6 +119,7 @@ class ClockAppearanceFragment : BaseFragment() {
         binding.dateFont.setSelection(ClockAppearance.fonts.indexOfFirst { it.second == style.dateFont }.coerceAtLeast(0))
         binding.clockWeight.setSelection(ClockAppearance.weights.indexOfFirst { it.second == style.clockWeight }.coerceAtLeast(0))
         binding.dateWeight.setSelection(ClockAppearance.weights.indexOfFirst { it.second == style.dateWeight }.coerceAtLeast(0))
+        binding.timeFormat.setSelection(ClockAppearance.hourFormats.indexOfFirst { it.second == prefs.clockHourFormat }.coerceAtLeast(0))
         binding.dateFormat.setSelection(style.dateFormat)
         binding.clockSize.progress = style.clockSize - 40
         binding.dateSize.progress = style.dateSize - 14
@@ -124,6 +133,7 @@ class ClockAppearanceFragment : BaseFragment() {
     private fun applyStyle(persist: Boolean = true) {
         if (persist) ClockAppearance.write(prefs, style)
         ClockAppearance.apply(requireContext(), binding.previewClock, binding.previewDate, style)
+        ClockAppearance.applyHourFormat(binding.previewClock, prefs.clockHourFormat)
         if (previewDateFormat != style.dateFormat) {
             binding.previewDate.text = ClockAppearance.formatDate(style)
             previewDateFormat = style.dateFormat

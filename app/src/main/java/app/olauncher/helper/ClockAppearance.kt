@@ -3,6 +3,7 @@ package app.olauncher.helper
 import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
+import android.widget.TextClock
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.updatePadding
@@ -41,6 +42,7 @@ object ClockAppearance {
         "Caveat" to "caveat",
     )
     val weights = listOf("Regular" to 400, "Medium" to 500, "Bold" to 700)
+    val hourFormats = listOf("System" to 0, "12-hour" to 1, "24-hour" to 2)
     val dateFormats = listOf(
         "Thu, 1 Oct" to "EEE, d MMM",
         "Thursday, 1 October" to "EEEE, d MMMM",
@@ -91,6 +93,16 @@ object ClockAppearance {
         clock.letterSpacing = style.clockSpacing
         date.letterSpacing = style.dateSpacing
         date.updatePadding(top = (style.lineSpacing * context.resources.displayMetrics.density).roundToInt())
+    }
+
+    fun applyHourFormat(clock: TextClock, mode: Int) {
+        val (format12Hour, format24Hour) = when (mode) {
+            1 -> "h:mm" to "h:mm"
+            2 -> "HH:mm" to "HH:mm"
+            else -> "h:mm" to "HH:mm"
+        }
+        clock.format12Hour = format12Hour
+        clock.format24Hour = format24Hour
     }
 
     fun formatDate(style: ClockStyle, now: Date = Date()): String =
