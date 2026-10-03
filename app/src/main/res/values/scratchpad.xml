@@ -10,10 +10,8 @@
     <string name="format_checkbox">Task</string>
     <string name="format_indent">Indent</string>
     <string name="format_outdent">Outdent</string>
-    <string name="scratchpad_options">Scratchpad</string>
     <string name="remove">Remove</string>
     <string name="scratchpad_font">Note font</string>
-    <string name="scratchpad_backdrop">Translucent note background</string>
     <string name="backup_scratchpad">Back up note</string>
     <string name="restore_scratchpad">Restore note</string>
     <string name="backup_saved">Note backed up</string>

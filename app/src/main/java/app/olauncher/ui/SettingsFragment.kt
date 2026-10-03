@@ -89,8 +89,6 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         populateActionHints()
         initClickListeners()
         initObservers()
-        binding.scratchpadBackdrop.isChecked = prefs.scratchpadBackdrop
-        binding.scratchpadBackdrop.setOnCheckedChangeListener { _, checked -> prefs.scratchpadBackdrop = checked }
     }
 
     private val exportScratchpad = registerForActivityResult(ActivityResultContracts.CreateDocument("text/markdown")) { uri ->

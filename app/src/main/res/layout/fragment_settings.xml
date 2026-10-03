@@ -29,58 +29,6 @@
             android:orientation="vertical"
             android:paddingVertical="64dp">
 
-            <Button
-                android:id="@+id/homeShortcuts"
-                style="@style/ScratchpadTool"
-                android:layout_width="match_parent"
-                android:layout_marginHorizontal="24dp"
-                android:gravity="start|center_vertical"
-                android:focusable="true"
-                android:text="@string/home_shortcuts" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginBottom="20dp"
-                android:orientation="vertical">
-                <TextView
-                    style="@style/TextMedium"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:text="@string/scratchpad_options" />
-                <Button
-                    android:id="@+id/scratchpadFont"
-                    style="@style/ScratchpadTool"
-                    android:layout_width="match_parent"
-                    android:gravity="start|center_vertical"
-                    android:focusable="true"
-                    android:text="@string/scratchpad_font" />
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/scratchpadBackdrop"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:paddingHorizontal="12dp"
-                    android:textColor="?attr/primaryColor"
-                    android:text="@string/scratchpad_backdrop" />
-                <Button
-                    android:id="@+id/backupScratchpad"
-                    style="@style/ScratchpadTool"
-                    android:layout_width="match_parent"
-                    android:gravity="start|center_vertical"
-                    android:focusable="true"
-                    android:text="@string/backup_scratchpad" />
-                <Button
-                    android:id="@+id/restoreScratchpad"
-                    style="@style/ScratchpadTool"
-                    android:layout_width="match_parent"
-                    android:gravity="start|center_vertical"
-                    android:focusable="true"
-                    android:text="@string/restore_scratchpad" />
-            </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -395,6 +343,33 @@
                     android:gravity="center_vertical"
                     android:paddingHorizontal="8dp"
                     android:text="@string/clock_appearance" />
+
+                <TextView
+                    android:id="@+id/homeShortcuts"
+                    style="@style/TextSmallBold"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="8dp"
+                    android:text="@string/home_shortcuts" />
+
+                <TextView
+                    android:id="@+id/backupScratchpad"
+                    style="@style/TextSmallBold"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="8dp"
+                    android:text="@string/backup_scratchpad" />
+
+                <TextView
+                    android:id="@+id/restoreScratchpad"
+                    style="@style/TextSmallBold"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="8dp"
+                    android:text="@string/restore_scratchpad" />
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -770,6 +745,15 @@
                     </LinearLayout>
 
                 </FrameLayout>
+
+                <TextView
+                    android:id="@+id/scratchpadFont"
+                    style="@style/TextSmallBold"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="8dp"
+                    android:text="@string/scratchpad_font" />
 
             </LinearLayout>
 
