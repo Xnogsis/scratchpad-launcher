@@ -1,4 +1,4 @@
-app_id := "app.scratchpad.launcher.debug"
+app_id := "app.scratchpad.plus.debug"
 activity := "app.olauncher.MainActivity"
 
 # Assemble debug APK

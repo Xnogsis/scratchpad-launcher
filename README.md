@@ -16,13 +16,13 @@ Scratchpad Plus is a fork of mstcgalis's Scratchpad Launcher, which added a pers
 
 Download signed APKs from [this fork's GitHub Releases](https://github.com/Xnogsis/scratchpad-launcherPlus/releases). Requires Android 7.0 or newer. Source on the default branch can include changes not yet in a release.
 
-The [F-Droid listing](https://f-droid.org/packages/app.scratchpad.launcher/) belongs to upstream Scratchpad Launcher, not Scratchpad Plus. Both use `app.scratchpad.launcher`, but this fork has its own signing key: an upstream/F-Droid installation cannot be updated in place with this APK. Back up your note before uninstalling upstream, then install this fork and restore the note. Updates signed with this fork's same key retain your data.
+The [F-Droid listing](https://f-droid.org/packages/app.scratchpad.launcher/) is upstream Scratchpad Launcher (`app.scratchpad.launcher`); Scratchpad Plus uses its own application ID, `app.scratchpad.plus`, so both apps can be installed side by side. To move from an earlier Scratchpad Plus build or upstream, back up the note and restore it in the new app; settings and home apps do not carry over.
 
 ### Features and controls
 
 - **Scratchpad:** tap to edit; changes save automatically. Markdown symbols appear while editing and hide when reading. The toolbar supports bold, italic, headings, bullets, tasks, and indentation. Choose a format on an empty line and start typing; tap Done or dismiss the keyboard to read it.
 - **Tasks and text selection:** tap a checkbox to toggle it. Hold note text to select and copy it.
-- **Apps:** tap an empty app slot, then tap an app to add it. Tap a filled slot to launch it. Hold a home app for Uninstall, Rename, Hide, Info, or Remove. Settings → Home shortcuts also replaces apps and sets the clock, calendar, and screen-time apps.
+- **Apps:** tap an empty app slot, then tap an app to add it. Tap a filled slot to launch it. Hold a home app for Uninstall, Rename, Hide, Info, or Remove. Hold an app, then drag it onto another slot to reorder. Settings → Home shortcuts also replaces apps and sets the clock, calendar, and screen-time apps.
 - **Settings:** hold an empty slot, blank note space, margins, or the clock/date. A hold on note text keeps native text selection.
 - **Appearance:** choose note fonts and an optional translucent backdrop. The clock/date editor has 16 presets, eight font choices, independent sizes and weights, date formats, letter spacing, a vertical gap, and a live preview. Bundled fonts work offline.
 - **Backups:** export a plain Markdown file through Android's file picker. Restore validates UTF-8 text up to 1 MiB and asks before replacing the note. Backups contain note text only. Folder sync writes scratchpad.md (renamed from scratchpad.txt upstream; existing files are renamed).
@@ -44,7 +44,7 @@ Single Kotlin/Gradle module. Use Java 21, Android SDK 35, and `just` (see `justf
 
 The inherited `just release` recipe still targets upstream and must not be used to publish this fork. Publish releases to `Xnogsis/scratchpad-launcherPlus` and reuse this fork's signing key. Never commit keystores or signing credentials.
 
-The application ID remains `app.scratchpad.launcher` and the Kotlin namespace remains `app.olauncher`; renaming the app does not change its local data storage.
+The application ID is `app.scratchpad.plus` and the Kotlin namespace remains `app.olauncher`.
 
 ### License
 

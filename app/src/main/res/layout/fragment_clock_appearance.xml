@@ -78,6 +78,8 @@
             <Spinner android:id="@+id/clockFont" style="@style/ClockAppearanceSpinner" />
             <TextView style="@style/ClockAppearanceValue" android:text="@string/weight" android:labelFor="@id/clockWeight" />
             <Spinner android:id="@+id/clockWeight" style="@style/ClockAppearanceSpinner" />
+            <TextView style="@style/ClockAppearanceValue" android:text="@string/time_format" android:labelFor="@id/timeFormat" />
+            <Spinner android:id="@+id/timeFormat" style="@style/ClockAppearanceSpinner" />
             <TextView android:id="@+id/clockSizeValue" style="@style/ClockAppearanceValue" android:text="@string/clock_size_label" android:labelFor="@id/clockSize" />
             <SeekBar android:id="@+id/clockSize" style="@style/ClockAppearanceSeek" android:max="56" />
             <TextView android:id="@+id/clockSpacingValue" style="@style/ClockAppearanceValue" android:text="@string/letter_spacing_label" android:labelFor="@id/clockSpacing" />

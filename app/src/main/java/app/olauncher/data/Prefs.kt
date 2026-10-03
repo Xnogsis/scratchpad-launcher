@@ -29,6 +29,7 @@ class Prefs(context: Context) {
     private val APP_LABEL_ALIGNMENT = "APP_LABEL_ALIGNMENT"
     private val STATUS_BAR = "STATUS_BAR"
     private val DATE_TIME_VISIBILITY = "DATE_TIME_VISIBILITY"
+    private val CLOCK_HOUR_FORMAT = "CLOCK_HOUR_FORMAT"
     private val CLOCK_FONT = "CLOCK_FONT"
     private val DATE_FONT = "DATE_FONT"
     private val CLOCK_TEXT_SIZE = "CLOCK_TEXT_SIZE"
@@ -209,6 +210,10 @@ class Prefs(context: Context) {
     var dateTimeVisibility: Int
         get() = prefs.getInt(DATE_TIME_VISIBILITY, Constants.DateTime.ON)
         set(value) = prefs.edit { putInt(DATE_TIME_VISIBILITY, value).apply() }
+
+    var clockHourFormat: Int
+        get() = prefs.getInt(CLOCK_HOUR_FORMAT, 0)
+        set(value) = prefs.edit { putInt(CLOCK_HOUR_FORMAT, value).apply() }
 
     var clockFont: String
         get() = prefs.getString(CLOCK_FONT, "sans") ?: "sans"
@@ -630,41 +635,47 @@ class Prefs(context: Context) {
         }
     }
 
-    fun clearHomeApp(location: Int) {
+    fun setHomeApp(
+        location: Int,
+        name: String,
+        packageName: String,
+        activityClassName: String,
+        user: String,
+        isShortcut: Boolean,
+        shortcutId: String,
+    ) {
         when (location) {
-            1 -> {
-                appName1 = ""; appPackage1 = ""; appActivityClassName1 = ""
-                appUser1 = ""; isShortcut1 = false; shortcutId1 = ""
-            }
-            2 -> {
-                appName2 = ""; appPackage2 = ""; appActivityClassName2 = ""
-                appUser2 = ""; isShortcut2 = false; shortcutId2 = ""
-            }
-            3 -> {
-                appName3 = ""; appPackage3 = ""; appActivityClassName3 = ""
-                appUser3 = ""; isShortcut3 = false; shortcutId3 = ""
-            }
-            4 -> {
-                appName4 = ""; appPackage4 = ""; appActivityClassName4 = ""
-                appUser4 = ""; isShortcut4 = false; shortcutId4 = ""
-            }
-            5 -> {
-                appName5 = ""; appPackage5 = ""; appActivityClassName5 = ""
-                appUser5 = ""; isShortcut5 = false; shortcutId5 = ""
-            }
-            6 -> {
-                appName6 = ""; appPackage6 = ""; appActivityClassName6 = ""
-                appUser6 = ""; isShortcut6 = false; shortcutId6 = ""
-            }
-            7 -> {
-                appName7 = ""; appPackage7 = ""; appActivityClassName7 = ""
-                appUser7 = ""; isShortcut7 = false; shortcutId7 = ""
-            }
-            8 -> {
-                appName8 = ""; appPackage8 = ""; appActivityClassName8 = ""
-                appUser8 = ""; isShortcut8 = false; shortcutId8 = ""
-            }
+            1 -> { appName1 = name; appPackage1 = packageName; appActivityClassName1 = activityClassName; appUser1 = user; isShortcut1 = isShortcut; shortcutId1 = shortcutId }
+            2 -> { appName2 = name; appPackage2 = packageName; appActivityClassName2 = activityClassName; appUser2 = user; isShortcut2 = isShortcut; shortcutId2 = shortcutId }
+            3 -> { appName3 = name; appPackage3 = packageName; appActivityClassName3 = activityClassName; appUser3 = user; isShortcut3 = isShortcut; shortcutId3 = shortcutId }
+            4 -> { appName4 = name; appPackage4 = packageName; appActivityClassName4 = activityClassName; appUser4 = user; isShortcut4 = isShortcut; shortcutId4 = shortcutId }
+            5 -> { appName5 = name; appPackage5 = packageName; appActivityClassName5 = activityClassName; appUser5 = user; isShortcut5 = isShortcut; shortcutId5 = shortcutId }
+            6 -> { appName6 = name; appPackage6 = packageName; appActivityClassName6 = activityClassName; appUser6 = user; isShortcut6 = isShortcut; shortcutId6 = shortcutId }
+            7 -> { appName7 = name; appPackage7 = packageName; appActivityClassName7 = activityClassName; appUser7 = user; isShortcut7 = isShortcut; shortcutId7 = shortcutId }
+            8 -> { appName8 = name; appPackage8 = packageName; appActivityClassName8 = activityClassName; appUser8 = user; isShortcut8 = isShortcut; shortcutId8 = shortcutId }
         }
+    }
+
+    fun clearHomeApp(location: Int) {
+        setHomeApp(location, "", "", "", "", false, "")
+    }
+
+    fun swapHomeApps(a: Int, b: Int) {
+        if (a !in 1..8 || b !in 1..8 || a == b) return
+        val nameA = getAppName(a)
+        val packageA = getAppPackage(a)
+        val activityClassA = getAppActivityClassName(a)
+        val userA = getAppUser(a)
+        val isShortcutA = getIsShortcut(a)
+        val shortcutIdA = getShortcutId(a)
+        val nameB = getAppName(b)
+        val packageB = getAppPackage(b)
+        val activityClassB = getAppActivityClassName(b)
+        val userB = getAppUser(b)
+        val isShortcutB = getIsShortcut(b)
+        val shortcutIdB = getShortcutId(b)
+        setHomeApp(a, nameB, packageB, activityClassB, userB, isShortcutB, shortcutIdB)
+        setHomeApp(b, nameA, packageA, activityClassA, userA, isShortcutA, shortcutIdA)
     }
 
     fun getAppPackage(location: Int): String {
