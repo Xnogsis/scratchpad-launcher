@@ -1,5 +1,7 @@
 # Scratchpad Plus
 
+![Scratchpad Plus](docs/brand/banner.png)
+
 A minimal, portrait-first Android home screen with a persistent Markdown scratchpad and a small app grid.
 
 Write something down without opening an app, and keep it visible through restarts. Format notes, tick off tasks, and give the clock and date a style of their own.
@@ -20,7 +22,7 @@ The [F-Droid listing](https://f-droid.org/packages/app.scratchpad.launcher/) bel
 
 - **Scratchpad:** tap to edit; changes save automatically. Markdown symbols appear while editing and hide when reading. The toolbar supports bold, italic, headings, bullets, tasks, and indentation. Choose a format on an empty line and start typing; tap Done or dismiss the keyboard to read it.
 - **Tasks and text selection:** tap a checkbox to toggle it. Hold note text to select and copy it.
-- **Apps:** tap an empty app slot, then tap an app to add it. Tap a filled slot to launch it. Hold a home app for Uninstall, Rename, Hide, Info, or Remove.
+- **Apps:** tap an empty app slot, then tap an app to add it. Tap a filled slot to launch it. Hold a home app for Uninstall, Rename, Hide, Info, or Remove. Settings → Home shortcuts also replaces apps and sets the clock, calendar, and screen-time apps.
 - **Settings:** hold an empty slot, blank note space, margins, or the clock/date. A hold on note text keeps native text selection.
 - **Appearance:** choose note fonts and an optional translucent backdrop. The clock/date editor has 16 presets, eight font choices, independent sizes and weights, date formats, letter spacing, a vertical gap, and a live preview. Bundled fonts work offline.
 - **Backups:** export a plain Markdown file through Android's file picker. Restore validates UTF-8 text up to 1 MiB and asks before replacing the note. Backups contain note text only. Folder sync writes scratchpad.md (renamed from scratchpad.txt upstream; existing files are renamed).
