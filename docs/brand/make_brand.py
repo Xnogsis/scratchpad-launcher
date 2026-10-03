@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch, Polygon
-from PIL import Image, ImageDraw
+from PIL import Image
 
 INK, PAPER, FOLD, RED, RULE = "#1A1E1D", "#F2EBDD", "#CBBFA6", "#E8452C", "#262C2A"
 RES = Path("app/src/main/res")
@@ -29,11 +29,19 @@ def scribble(x0, x1, y, seed, amp=1.0):
     return np.c_[x, y + amp * (0.7 * np.sin(x * 0.85 + phase) + 0.3 * np.sin(x * 2.4 + phase))]
 
 
-def draw_mark(ax, px, mono=False):
-    """The mark in a 108-unit adaptive-icon space; px is the rendered canvas width."""
+def draw_mark(ax, px, mono=False, layer="all"):
+    """The mark in a 108-unit adaptive-icon space; px is the rendered canvas width.
+    layer splits the mark so the plus can punch a transparent gap into the sheet."""
     lw = lambda units: units * px / 108 * 72 / 100
     paper, fold, ink, red = ("white", "#9A9A9A", "black", "white") if mono else (PAPER, FOLD, INK, RED)
     center, tilt = np.array([51.0, 56.0]), -7
+    cx, cy, arm = 68, 38, 8
+    plus = (([cx - arm, cx + arm], [cy, cy]), ([cx, cx], [cy - arm, cy + arm]))
+    if layer in ("halo", "plus"):
+        width, color = (11.5, "black") if layer == "halo" else (7, red)
+        for xs, ys in plus:
+            ax.plot(xs, ys, lw=lw(width), color=color, solid_capstyle="round")
+        return
     sheet = [(-18, -21), (18, -21), (18, 12), (9, 21), (-18, 21)]
     ax.add_patch(Polygon(rot(sheet, tilt, center), closed=True, fc=paper, ec="none"))
     ax.add_patch(Polygon(rot([(9, 21), (9, 12), (18, 12)], tilt, center), closed=True, fc=fold, ec="none"))
@@ -46,13 +54,13 @@ def draw_mark(ax, px, mono=False):
     ax.plot(*rot(scribble(-4, 12, 2.5, 2), tilt, center).T, lw=lw(1.9), **line)
     ax.plot(*rot(scribble(-12, 13, -7, 3), tilt, center).T, lw=lw(1.9), **line)
     ax.plot(*rot(scribble(-12, 1, -15, 4), tilt, center).T, lw=lw(1.9), **line)
-    cx, cy, arm = 68, 38, 8
-    for width, color in ((11.5, "black" if mono else INK), (7, red)):
-        for xs, ys in (([cx - arm, cx + arm], [cy, cy]), ([cx, cx], [cy - arm, cy + arm])):
-            ax.plot(xs, ys, lw=lw(width), color=color, solid_capstyle="round")
+    if layer == "all":
+        for width, color in ((11.5, "black" if mono else INK), (7, red)):
+            for xs, ys in plus:
+                ax.plot(xs, ys, lw=lw(width), color=color, solid_capstyle="round")
 
 
-def render(px, mono=False, background=None):
+def render(px, mono=False, background=None, layer="all"):
     fig = plt.figure(figsize=(px / 100, px / 100), dpi=100)
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, 108)
@@ -60,8 +68,18 @@ def render(px, mono=False, background=None):
     ax.axis("off")
     if background:
         ax.add_patch(plt.Rectangle((0, 0), 108, 108, fc=background, ec="none"))
-    draw_mark(ax, px, mono)
+    draw_mark(ax, px, mono, layer)
     return to_image(fig)
+
+
+def foreground(px):
+    """Transparent mark: the plus sits in a see-through gap cut out of the sheet."""
+    sheet = render(px, layer="sheet")
+    halo = render(px, layer="halo").getchannel("A")
+    alpha = np.minimum(np.asarray(sheet.getchannel("A")), 255 - np.asarray(halo))
+    sheet.putalpha(Image.fromarray(alpha.astype(np.uint8)))
+    sheet.alpha_composite(render(px, layer="plus"))
+    return sheet
 
 
 def to_image(fig, **kw):
@@ -71,20 +89,11 @@ def to_image(fig, **kw):
     return Image.open(buf).convert("RGBA")
 
 
-def legacy(px, shape):
-    """What launchers without adaptive icons show: the visible 72/108 crop of the composite, masked."""
-    full = render(round(px * 1.5) * 2, background=INK)
-    side = full.width * 72 // 108
-    o = (full.width - side) // 2
-    crop = full.crop((o, o, o + side, o + side)).resize((px * 4, px * 4), Image.LANCZOS)
-    mask = Image.new("L", crop.size, 0)
-    draw = ImageDraw.Draw(mask)
-    if shape == "circle":
-        draw.ellipse((0, 0, *crop.size), fill=255)
-    else:
-        draw.rounded_rectangle((0, 0, crop.width - 1, crop.height - 1), radius=crop.width * 0.22, fill=255)
-    crop.putalpha(mask)
-    return crop.resize((px, px), Image.LANCZOS)
+def legacy(px):
+    """Transparent icon for launchers without adaptive icons: the visible 72/108 crop of the foreground."""
+    full = foreground(round(px * 1.5) * 2)
+    o = full.width * 18 // 108
+    return full.crop((o, o, full.width - o, full.width - o)).resize((px, px), Image.LANCZOS)
 
 
 def monochrome(px):
@@ -134,9 +143,7 @@ def banner(w, h, path, tagline=True):
         ax.text(tx, h * 0.24, "Olauncher \u2192 Scratchpad Launcher \u2192 Scratchpad Plus", family="DejaVu Sans Mono",
                 fontsize=size * 0.17, color="#6F6A60", va="baseline")
     img = to_image(fig)
-    full = render(int(tile * 3))
-    o = full.width * 18 // 108
-    mark = full.crop((o, o, full.width - o, full.width - o)).resize((int(tile), int(tile)), Image.LANCZOS)
+    mark = legacy(int(tile))
     img.alpha_composite(mark, (int(x0), int(h - y0 - tile)))
     save(img, path, rgb=True)
 
@@ -144,18 +151,18 @@ def banner(w, h, path, tagline=True):
 def main():
     for name, scale in DENSITIES.items():
         d = RES / f"mipmap-{name}"
-        save(render(round(108 * scale)), d / "ic_launcher_foreground.webp")
+        save(foreground(round(108 * scale)), d / "ic_launcher_foreground.webp")
         save(monochrome(round(108 * scale)), d / "ic_launcher_monochrome.webp")
-        save(legacy(round(48 * scale), "square"), d / "ic_launcher.webp")
-        save(legacy(round(48 * scale), "circle"), d / "ic_launcher_round.webp")
-    save(legacy(192, "square"), RES / "drawable-nodpi" / "ic_brand.webp")
-    save(legacy(1024, "square"), Path("icon.png"))
-    save(legacy(512, "square"), Path("app/src/main/ic_launcher-playstore.png"), rgb=True)
-    save(legacy(512, "square"), Path("fastlane/metadata/android/en-US/images/icon.png"), rgb=True)
+        save(legacy(round(48 * scale)), d / "ic_launcher.webp")
+        save(legacy(round(48 * scale)), d / "ic_launcher_round.webp")
+    save(legacy(192), RES / "drawable-nodpi" / "ic_brand.webp")
+    save(legacy(1024), Path("icon.png"))
+    save(legacy(512), Path("app/src/main/ic_launcher-playstore.png"))
+    save(legacy(512), Path("fastlane/metadata/android/en-US/images/icon.png"))
     banner(1280, 400, Path("docs/brand/banner.png"))
     banner(1280, 640, Path("docs/brand/social-preview.png"))
     banner(1024, 500, Path("fastlane/metadata/android/en-US/images/featureGraphic.jpg"), tagline=False)
-    save(render(1024, background=INK), Path("docs/brand/adaptive-full.png"))
+    save(foreground(1024), Path("docs/brand/adaptive-full.png"))
 
 
 if __name__ == "__main__":
