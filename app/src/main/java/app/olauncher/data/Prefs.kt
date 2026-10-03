@@ -617,6 +617,56 @@ class Prefs(context: Context) {
         }
     }
 
+    fun setAppName(location: Int, name: String) {
+        when (location) {
+            1 -> appName1 = name
+            2 -> appName2 = name
+            3 -> appName3 = name
+            4 -> appName4 = name
+            5 -> appName5 = name
+            6 -> appName6 = name
+            7 -> appName7 = name
+            8 -> appName8 = name
+        }
+    }
+
+    fun clearHomeApp(location: Int) {
+        when (location) {
+            1 -> {
+                appName1 = ""; appPackage1 = ""; appActivityClassName1 = ""
+                appUser1 = ""; isShortcut1 = false; shortcutId1 = ""
+            }
+            2 -> {
+                appName2 = ""; appPackage2 = ""; appActivityClassName2 = ""
+                appUser2 = ""; isShortcut2 = false; shortcutId2 = ""
+            }
+            3 -> {
+                appName3 = ""; appPackage3 = ""; appActivityClassName3 = ""
+                appUser3 = ""; isShortcut3 = false; shortcutId3 = ""
+            }
+            4 -> {
+                appName4 = ""; appPackage4 = ""; appActivityClassName4 = ""
+                appUser4 = ""; isShortcut4 = false; shortcutId4 = ""
+            }
+            5 -> {
+                appName5 = ""; appPackage5 = ""; appActivityClassName5 = ""
+                appUser5 = ""; isShortcut5 = false; shortcutId5 = ""
+            }
+            6 -> {
+                appName6 = ""; appPackage6 = ""; appActivityClassName6 = ""
+                appUser6 = ""; isShortcut6 = false; shortcutId6 = ""
+            }
+            7 -> {
+                appName7 = ""; appPackage7 = ""; appActivityClassName7 = ""
+                appUser7 = ""; isShortcut7 = false; shortcutId7 = ""
+            }
+            8 -> {
+                appName8 = ""; appPackage8 = ""; appActivityClassName8 = ""
+                appUser8 = ""; isShortcut8 = false; shortcutId8 = ""
+            }
+        }
+    }
+
     fun getAppPackage(location: Int): String {
         return when (location) {
             1 -> prefs.getString(APP_PACKAGE_1, "").toString()

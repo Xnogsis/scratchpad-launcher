@@ -20,10 +20,10 @@ The [F-Droid listing](https://f-droid.org/packages/app.scratchpad.launcher/) bel
 
 - **Scratchpad:** tap to edit; changes save automatically. Markdown symbols appear while editing and hide when reading. The toolbar supports bold, italic, headings, bullets, tasks, and indentation. Choose a format on an empty line and start typing; tap Done or dismiss the keyboard to read it.
 - **Tasks and text selection:** tap a checkbox to toggle it. Hold note text to select and copy it.
-- **Apps:** tap an empty app slot, then tap an app to add it. Tap a filled slot to launch it. Use Settings → Home shortcuts to replace or rename an app, or choose the clock, calendar, and screen-time apps.
-- **Settings:** hold blank note space, home-screen margins, the clock/date, or an app slot. Uses Android's normal long-press timing. A hold on note text keeps native text selection.
+- **Apps:** tap an empty app slot, then tap an app to add it. Tap a filled slot to launch it. Hold a home app for Uninstall, Rename, Hide, Info, or Remove.
+- **Settings:** hold an empty slot, blank note space, margins, or the clock/date. A hold on note text keeps native text selection.
 - **Appearance:** choose note fonts and an optional translucent backdrop. The clock/date editor has 16 presets, eight font choices, independent sizes and weights, date formats, letter spacing, a vertical gap, and a live preview. Bundled fonts work offline.
-- **Backups:** export a plain Markdown file through Android's file picker. Restore validates UTF-8 text up to 1 MiB and asks before replacing the note. Backups contain note text only. Optional folder sync is also available.
+- **Backups:** export a plain Markdown file through Android's file picker. Restore validates UTF-8 text up to 1 MiB and asks before replacing the note. Backups contain note text only. Folder sync writes scratchpad.md (renamed from scratchpad.txt upstream; existing files are renamed).
 - **Portrait:** the launcher requests portrait orientation; a landscape appearance editor is deferred.
 
 ### Privacy

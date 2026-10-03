@@ -11,15 +11,20 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.view.ViewCompat
@@ -45,6 +50,7 @@ import app.olauncher.helper.MarkdownAction
 import app.olauncher.helper.MarkdownFormatter
 import app.olauncher.helper.hideKeyboard
 import app.olauncher.helper.appUsagePermissionGranted
+import app.olauncher.helper.deletePinnedShortcut
 import app.olauncher.helper.dpToPx
 import app.olauncher.helper.expandNotificationDrawer
 import app.olauncher.helper.getColorFromAttr
@@ -54,8 +60,10 @@ import app.olauncher.helper.openAlarmApp
 import app.olauncher.helper.openCalendar
 import app.olauncher.helper.openCameraApp
 import app.olauncher.helper.openDialerApp
+import app.olauncher.helper.openAppInfo
 import app.olauncher.helper.openSearch
 import app.olauncher.helper.showToast
+import app.olauncher.helper.uninstallOrShowInfo
 import app.olauncher.listener.OnSwipeTouchListener
 import app.olauncher.listener.ViewSwipeTouchListener
 import kotlinx.coroutines.Job
@@ -172,8 +180,81 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     override fun onLongClick(view: View): Boolean {
-        openSettings()
+        val slot = view.tag?.toString()?.toIntOrNull()
+        if (slot != null && slot in 1..8 && prefs.getAppName(slot).isNotEmpty())
+            showHomeAppMenu(view, slot)
+        else
+            openSettings()
         return true
+    }
+
+    private fun showHomeAppMenu(view: View, slot: Int) {
+        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        val uninstallId = 1
+        val renameId = 2
+        val hideId = 3
+        val infoId = 4
+        val removeId = 5
+        PopupMenu(requireContext(), view).apply {
+            menu.add(Menu.NONE, uninstallId, Menu.NONE, R.string.delete)
+            menu.add(Menu.NONE, renameId, Menu.NONE, R.string.rename)
+            menu.add(Menu.NONE, hideId, Menu.NONE, R.string.adapter_hide)
+            menu.add(Menu.NONE, infoId, Menu.NONE, R.string.info)
+            menu.add(Menu.NONE, removeId, Menu.NONE, R.string.remove)
+            setOnMenuItemClickListener { item ->
+                val context = requireContext()
+                val packageName = prefs.getAppPackage(slot)
+                val user = getUserHandleFromString(context, prefs.getAppUser(slot))
+                when (item.itemId) {
+                    uninstallId -> {
+                        if (prefs.getIsShortcut(slot)) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1)
+                                context.deletePinnedShortcut(packageName, prefs.getShortcutId(slot), user)
+                            prefs.clearHomeApp(slot)
+                            populateHomeScreen(false)
+                        } else {
+                            context.uninstallOrShowInfo(packageName, user)
+                            viewModel.getAppList()
+                        }
+                    }
+                    renameId -> {
+                        val input = EditText(context).apply {
+                            setText(prefs.getAppName(slot))
+                            selectAll()
+                        }
+                        AlertDialog.Builder(context)
+                            .setTitle(R.string.rename)
+                            .setView(input)
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .setPositiveButton(android.R.string.ok) { _, _ ->
+                                input.text.toString().trim().takeIf { it.isNotBlank() }?.let {
+                                    prefs.setAppName(slot, it)
+                                    populateHomeScreen(false)
+                                }
+                            }
+                            .show()
+                    }
+                    hideId -> {
+                        if (prefs.getIsShortcut(slot)) {
+                            context.showToast("Hiding pinned shortcuts is not supported")
+                        } else {
+                            prefs.hiddenApps = prefs.hiddenApps.toMutableSet().apply {
+                                add("$packageName|$user")
+                            }
+                            viewModel.getAppList()
+                            viewModel.getHiddenApps()
+                        }
+                    }
+                    infoId -> openAppInfo(context, user, packageName)
+                    removeId -> {
+                        prefs.clearHomeApp(slot)
+                        populateHomeScreen(false)
+                    }
+                }
+                true
+            }
+            show()
+        }
     }
 
     private fun openSettings() {
